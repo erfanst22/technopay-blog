@@ -1,0 +1,30 @@
+/* استایل ویرایشگر بلوک: فونت و الگوهای اختصاصی قالب تکنوپی */
+@font-face { font-family: "Vazirmatn"; src: url("../fonts/vazirmatn/Vazirmatn-FD-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Vazirmatn"; src: url("../fonts/vazirmatn/Vazirmatn-FD-Bold.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Vazirmatn"; src: url("../fonts/vazirmatn/Vazirmatn-FD-Black.woff2") format("woff2"); font-weight: 800 900; font-display: swap; }
+
+body {
+  font-family: "Vazirmatn", Tahoma, sans-serif;
+  font-size: 17px;
+  line-height: 2.15;
+  color: #334155;
+}
+h1, h2, h3, h4 { color: #0f172a; font-weight: 800; line-height: 1.6; }
+a { color: #2b59ff; }
+
+.callout { position: relative; padding: 18px 20px; padding-inline-start: 58px; border-radius: 18px; border: 1px solid; font-size: 15px; line-height: 2; color: #0f172a; }
+.callout p { margin: 0; }
+.callout--tip { background: #e7f8f0; border-color: #a7e3c8; }
+.callout--warn { background: #fff6e4; border-color: #ffd98a; }
+.callout::before { content: ""; position: absolute; top: 24px; right: 22px; width: 18px; height: 18px; border-radius: 50%; }
+.callout--tip::before { background: #12b76a; }
+.callout--warn::before { background: #d97706; }
+
+.tp-cta { padding: 24px 26px; border-radius: 22px; color: #fff; background: linear-gradient(135deg, #2b59ff, #5b3df5); }
+.tp-cta p, .tp-cta strong { color: #fff; margin: 0 0 10px; }
+.tp-cta__title { font-size: 19px; font-weight: 900; }
+.tp-cta .wp-block-button__link { background: #fff; color: #1d43d8; border-radius: 12px; font-weight: 700; }
+
+.wp-block-details { border: 1px solid #e5e9f2; border-radius: 16px; background: #f8fafc; padding: 12px 18px; }
+.wp-block-details summary { font-weight: 700; color: #0f172a; cursor: pointer; }
+.wp-block-quote { background: #eef2ff; border-inline-start: 5px solid #2b59ff; border-radius: 20px; padding: 18px 24px; font-weight: 600; }

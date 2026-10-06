@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" width="1200" height="750">
+<defs>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2B59FF"/><stop offset="1" stop-color="#7C3AED"/></linearGradient>
+  <radialGradient id="r" cx=".85" cy=".1" r=".7"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="1200" height="750" fill="url(#g)"/>
+<rect width="1200" height="750" fill="url(#r)"/>
+<circle cx="80" cy="680" r="220" fill="#fff" fill-opacity=".07"/>
+<circle cx="1120" cy="90" r="160" fill="#fff" fill-opacity=".08"/>
+<g fill="#fff" fill-opacity=".25">
+  <circle cx="160" cy="140" r="6"/><circle cx="200" cy="140" r="6"/><circle cx="240" cy="140" r="6"/>
+  <circle cx="160" cy="180" r="6"/><circle cx="200" cy="180" r="6"/><circle cx="240" cy="180" r="6"/>
+  <circle cx="960" cy="600" r="6"/><circle cx="1000" cy="600" r="6"/><circle cx="1040" cy="600" r="6"/>
+  <circle cx="960" cy="640" r="6"/><circle cx="1000" cy="640" r="6"/><circle cx="1040" cy="640" r="6"/>
+</g>
+
+<g transform="translate(600 385) rotate(-8)">
+  <rect x="-250" y="-150" width="500" height="300" rx="34" fill="#fff" fill-opacity=".18" stroke="#fff" stroke-opacity=".5" stroke-width="3"/>
+  <rect x="-200" y="-80" width="80" height="60" rx="12" fill="#fff" fill-opacity=".75"/>
+  <rect x="-200" y="40" width="300" height="20" rx="10" fill="#fff" fill-opacity=".7"/>
+  <rect x="-200" y="80" width="170" height="16" rx="8" fill="#fff" fill-opacity=".45"/>
+  <circle cx="150" cy="80" r="38" fill="#fff" fill-opacity=".55"/><circle cx="195" cy="80" r="38" fill="#fff" fill-opacity=".35"/>
+</g>
+</svg>
