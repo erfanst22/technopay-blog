@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TECHNOPAY_VERSION', '1.0.0' );
+define( 'TECHNOPAY_VERSION', '1.1.0' );
 define( 'TECHNOPAY_DIR', get_template_directory() );
 define( 'TECHNOPAY_URI', get_template_directory_uri() );
 
@@ -85,7 +85,7 @@ function technopay_setup() {
 
 	add_image_size( 'technopay-hero', 1280, 800, true );
 	add_image_size( 'technopay-card', 768, 480, true );
-	add_image_size( 'technopay-tile', 400, 225, true );
+	add_image_size( 'technopay-tile', 640, 360, true );
 	add_image_size( 'technopay-thumb', 240, 240, true );
 
 	register_nav_menus(
@@ -185,6 +185,11 @@ function technopay_archive_sorting( $query ) {
 
 	$sort = technopay_current_sort();
 
+	// با مرتب‌سازی غیر پیش‌فرض، نوشته‌های سنجاق‌شده اول لیست نمی‌آیند.
+	if ( 'latest' !== $sort ) {
+		$query->set( 'ignore_sticky_posts', true );
+	}
+
 	if ( 'popular' === $sort ) {
 		$query->set(
 			'meta_query',
@@ -230,6 +235,31 @@ function technopay_pattern_category() {
 	register_block_pattern_category( 'technopay', array( 'label' => __( 'تکنوپی', 'technopay' ) ) );
 }
 add_action( 'init', 'technopay_pattern_category' );
+
+/**
+ * هماهنگی با افزونه «مطالب مرتبط هوشمند تکنوپی» (plugins/technopay-related-posts):
+ * برای نوشته‌های بدون تصویر شاخص، کاور پیش‌فرض قالب در باکس‌ها و پنل ادمین نمایش داده می‌شود.
+ *
+ * @param string  $html   HTML تصویر.
+ * @param WP_Post $target نوشته مقصد.
+ * @return string
+ */
+function technopay_related_box_thumbnail( $html, $target ) {
+	return '' !== $html ? $html : technopay_get_thumbnail( 'technopay-thumb', array( 'alt' => '' ), $target->ID );
+}
+add_filter( 'tprp_thumbnail_html', 'technopay_related_box_thumbnail', 10, 2 );
+
+/**
+ * آدرس تصویر بندانگشتی در پنل ادمین افزونه.
+ *
+ * @param string  $url  آدرس.
+ * @param WP_Post $post نوشته.
+ * @return string
+ */
+function technopay_related_admin_thumbnail( $url, $post ) {
+	return '' !== $url ? $url : technopay_fallback_cover_url( $post->ID );
+}
+add_filter( 'tprp_admin_thumbnail_url', 'technopay_related_admin_thumbnail', 10, 2 );
 
 /**
  * قالب فارسی است؛ حتی اگر زبان سایت فارسی نباشد، جهت صفحه راست‌چین بماند.

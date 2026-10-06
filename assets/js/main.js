@@ -97,32 +97,6 @@
     if (e.key === "/" && !typing) { e.preventDefault(); openSearch(); }
   });
 
-  /* ---------- Home: category tabs ---------- */
-  $$("[data-tabs]").forEach(function (tablist) {
-    var tabs = $$("[role=tab]", tablist);
-    function select(tab, focus) {
-      tabs.forEach(function (t) {
-        var active = t === tab;
-        t.classList.toggle("is-active", active);
-        t.setAttribute("aria-selected", active ? "true" : "false");
-        t.tabIndex = active ? 0 : -1;
-        var panel = document.getElementById(t.getAttribute("aria-controls"));
-        if (panel) panel.hidden = !active;
-      });
-      if (focus) tab.focus();
-    }
-    tabs.forEach(function (tab, i) {
-      tab.addEventListener("click", function () { select(tab); });
-      tab.addEventListener("keydown", function (e) {
-        // در راست‌چین، فلش چپ یعنی «بعدی»
-        var next = { ArrowLeft: i + 1, ArrowRight: i - 1, Home: 0, End: tabs.length - 1 }[e.key];
-        if (next === undefined) return;
-        e.preventDefault();
-        select(tabs[(next + tabs.length) % tabs.length], true);
-      });
-    });
-  });
-
   /* ---------- Archive: list / grid view ---------- */
   $$("[data-view]").forEach(function (btn) {
     btn.addEventListener("click", function () {

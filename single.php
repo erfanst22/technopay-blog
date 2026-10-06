@@ -14,13 +14,22 @@ while ( have_posts() ) :
 	the_post();
 
 	$technopay_updated = technopay_modified_date( null, 'numeric' );
+
+	// سایدبار را قبل از چاپ ساخته می‌شود تا اگر خالی بود ستونی برایش رزرو نشود.
+	ob_start();
+	if ( is_active_sidebar( 'technopay-single' ) ) {
+		dynamic_sidebar( 'technopay-single' );
+	} else {
+		technopay_default_single_sidebar();
+	}
+	$technopay_sidebar_html = trim( (string) ob_get_clean() );
 	?>
 	<div class="progress" aria-hidden="true"><span></span></div>
 
 	<main id="main" class="site-main site-main--single container">
 		<?php technopay_breadcrumb( 'breadcrumb--box' ); ?>
 
-		<div class="post-layout post-layout--article">
+		<div class="post-layout post-layout--article<?php echo '' === $technopay_sidebar_html ? ' post-layout--solo' : ''; ?>">
 			<div class="post-main">
 				<article id="post-<?php the_ID(); ?>" <?php post_class( 'post-card' ); ?>>
 					<header class="post-card__head">
@@ -45,8 +54,9 @@ while ( have_posts() ) :
 								echo esc_html( sprintf( __( '%s دقیقه مطالعه', 'technopay' ), technopay_fa_digits( technopay_reading_time() ) ) );
 								?>
 							</span>
-							<span class="meta-chip" title="<?php esc_attr_e( 'بازدید', 'technopay' ); ?>">
+							<span class="meta-chip">
 								<?php technopay_icon( 'eye' ); ?>
+								<span class="sr-only"><?php esc_html_e( 'بازدید:', 'technopay' ); ?></span>
 								<?php echo esc_html( technopay_number( technopay_get_views() ) ); ?>
 							</span>
 							<a class="meta-chip meta-chip--link" href="<?php echo esc_url( get_author_posts_url( (int) get_the_author_meta( 'ID' ) ) ); ?>">
@@ -159,15 +169,11 @@ while ( have_posts() ) :
 				?>
 			</div>
 
-			<aside class="sidebar sidebar--single" aria-label="<?php esc_attr_e( 'سایدبار نوشته', 'technopay' ); ?>">
-				<?php
-				if ( is_active_sidebar( 'technopay-single' ) ) {
-					dynamic_sidebar( 'technopay-single' );
-				} else {
-					technopay_default_single_sidebar();
-				}
-				?>
-			</aside>
+			<?php if ( '' !== $technopay_sidebar_html ) : ?>
+				<aside class="sidebar sidebar--single" aria-label="<?php esc_attr_e( 'سایدبار نوشته', 'technopay' ); ?>">
+					<?php echo $technopay_sidebar_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped where it is generated. ?>
+				</aside>
+			<?php endif; ?>
 		</div>
 	</main>
 	<?php

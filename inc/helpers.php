@@ -445,11 +445,13 @@ function technopay_get_latest_posts( $count = 5, $exclude = array() ) {
  *
  * @param int|null $post_id شناسه نوشته.
  * @param int      $count   تعداد.
+ * @param int[]    $exclude نوشته‌های مستثنا (مثلاً آنچه در لیست‌های دیگر نشان داده شده).
  * @return WP_Post[]
  */
-function technopay_get_related_posts( $post_id = null, $count = 5 ) {
+function technopay_get_related_posts( $post_id = null, $count = 5, $exclude = array() ) {
 	$post_id = $post_id ? (int) $post_id : (int) get_the_ID();
 	$count   = max( 1, (int) $count );
+	$exclude = array_values( array_unique( array_merge( array( $post_id ), array_map( 'intval', (array) $exclude ) ) ) );
 	$cats    = wp_get_post_categories( $post_id );
 	$tags    = wp_get_post_tags( $post_id, array( 'fields' => 'ids' ) );
 	$default = (int) get_option( 'default_category' );
@@ -476,7 +478,7 @@ function technopay_get_related_posts( $post_id = null, $count = 5 ) {
 
 		$candidates = get_posts(
 			array(
-				'post__not_in'        => array( $post_id ),
+				'post__not_in'        => $exclude,
 				'posts_per_page'      => 40,
 				'tax_query'           => $tax_query, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 				'ignore_sticky_posts' => true,
@@ -486,8 +488,11 @@ function technopay_get_related_posts( $post_id = null, $count = 5 ) {
 
 		$scored = array();
 		foreach ( $candidates as $index => $candidate ) {
-			$cand_tags = wp_list_pluck( (array) get_the_terms( $candidate, 'post_tag' ), 'term_id' );
-			$cand_cats = wp_list_pluck( (array) get_the_terms( $candidate, 'category' ), 'term_id' );
+			// get_the_terms() برای نوشته بدون ترم false برمی‌گرداند؛ از کش ترم‌ها (که با get_posts پر شده) می‌خواند.
+			$cand_tag_terms = get_the_terms( $candidate, 'post_tag' );
+			$cand_cat_terms = get_the_terms( $candidate, 'category' );
+			$cand_tags      = ( $cand_tag_terms && ! is_wp_error( $cand_tag_terms ) ) ? wp_list_pluck( $cand_tag_terms, 'term_id' ) : array();
+			$cand_cats      = ( $cand_cat_terms && ! is_wp_error( $cand_cat_terms ) ) ? wp_list_pluck( $cand_cat_terms, 'term_id' ) : array();
 			$score     = 3 * count( array_intersect( $tags, array_map( 'intval', $cand_tags ) ) ) + 2 * count( array_intersect( $cats, array_map( 'intval', $cand_cats ) ) );
 			// کلید دوم برای پایدار بودن ترتیب (candidates از قبل بر اساس تاریخ نزولی‌اند).
 			$scored[] = array( $score, -$index, $candidate );
@@ -504,7 +509,7 @@ function technopay_get_related_posts( $post_id = null, $count = 5 ) {
 	if ( count( $result ) < $count ) {
 		$result = array_merge(
 			$result,
-			technopay_get_latest_posts( $count - count( $result ), array_merge( array( $post_id ), wp_list_pluck( $result, 'ID' ) ) )
+			technopay_get_latest_posts( $count - count( $result ), array_merge( $exclude, wp_list_pluck( $result, 'ID' ) ) )
 		);
 	}
 
@@ -529,12 +534,37 @@ function technopay_posts_page_url() {
 		return (string) get_permalink( $page );
 	}
 	if ( 'posts' === get_option( 'show_on_front' ) ) {
-		global $wp_query;
-		if ( $wp_query && $wp_query->max_num_pages > 1 ) {
-			return get_pagenum_link( 2 );
-		}
+		// صفحه اصلی خودش مجله است؛ با پارامتر sort نمای لیستی (صفحه ۱ همه نوشته‌ها) نمایش داده می‌شود.
+		return add_query_arg( 'sort', 'latest', home_url( '/' ) );
 	}
 	return '';
+}
+
+/**
+ * آیا آدرس پارامتر sort معتبر دارد؟ (برای نمایش لیستی صفحه اصلی)
+ *
+ * @return bool
+ */
+function technopay_has_explicit_sort() {
+	return isset( $_GET['sort'] ) && in_array( sanitize_key( wp_unslash( $_GET['sort'] ) ), array( 'latest', 'popular', 'comments', 'oldest' ), true ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+}
+
+/**
+ * کش تصویرهای شاخص یک لیست نوشته را با یک کوئری پر می‌کند (جلوگیری از کوئری جداگانه برای هر کارت).
+ *
+ * @param WP_Post[] $posts نوشته‌ها.
+ */
+function technopay_prime_thumbnails( $posts ) {
+	$ids = array();
+	foreach ( (array) $posts as $post ) {
+		$thumb_id = (int) get_post_thumbnail_id( $post );
+		if ( $thumb_id ) {
+			$ids[] = $thumb_id;
+		}
+	}
+	if ( $ids ) {
+		_prime_post_caches( array_unique( $ids ), false, true );
+	}
 }
 
 /**

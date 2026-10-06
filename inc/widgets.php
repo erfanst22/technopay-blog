@@ -221,10 +221,13 @@ function technopay_default_main_sidebar() {
  */
 function technopay_default_single_sidebar() {
 	$post_id = (int) get_the_ID();
-	technopay_mini_list( __( 'پربازدیدترین مقالات', 'technopay' ), technopay_get_popular_posts( 5, array( $post_id ) ) );
-	technopay_mini_list( __( 'جدیدترین مقالات', 'technopay' ), technopay_get_latest_posts( 5, array( $post_id ) ) );
+	$popular = technopay_get_popular_posts( 5, array( $post_id ) );
+	$latest  = technopay_get_latest_posts( 5, array( $post_id ) );
+	technopay_mini_list( __( 'پربازدیدترین مقالات', 'technopay' ), $popular );
+	technopay_mini_list( __( 'جدیدترین مقالات', 'technopay' ), $latest );
 	if ( technopay_option( 'show_related' ) ) {
-		technopay_mini_list( __( 'مقالات مرتبط', 'technopay' ), technopay_get_related_posts( $post_id, 5 ) );
+		// مطالب مرتبط، موارد نمایش‌داده‌شده در دو لیست بالا را تکرار نمی‌کنند.
+		technopay_mini_list( __( 'مقالات مرتبط', 'technopay' ), technopay_get_related_posts( $post_id, 5, array_merge( wp_list_pluck( $popular, 'ID' ), wp_list_pluck( $latest, 'ID' ) ) ) );
 	}
 }
 

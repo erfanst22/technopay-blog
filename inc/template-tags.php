@@ -254,7 +254,7 @@ function technopay_archive_toolbar() {
 		</p>
 		<div class="tabs" aria-label="<?php esc_attr_e( 'مرتب‌سازی', 'technopay' ); ?>">
 			<?php foreach ( $options as $key => $label ) : ?>
-				<a class="chip<?php echo $key === $current ? ' is-active' : ''; ?>" href="<?php echo esc_url( 'latest' === $key ? remove_query_arg( array( 'sort', 'paged' ) ) : add_query_arg( 'sort', $key, remove_query_arg( 'paged' ) ) ); ?>"<?php echo $key === $current ? ' aria-current="true"' : ''; ?>><?php echo esc_html( $label ); ?></a>
+				<a class="chip<?php echo $key === $current ? ' is-active' : ''; ?>" href="<?php echo esc_url( ( 'latest' === $key && ! ( is_home() && is_front_page() ) ) ? remove_query_arg( 'sort', get_pagenum_link( 1 ) ) : add_query_arg( 'sort', $key, get_pagenum_link( 1 ) ) ); ?>"<?php echo $key === $current ? ' aria-current="true"' : ''; ?>><?php echo esc_html( $label ); ?></a>
 			<?php endforeach; ?>
 		</div>
 		<div class="view-switch">
@@ -318,13 +318,14 @@ function technopay_post_row( $args ) {
 		return;
 	}
 	global $post;
+	technopay_prime_thumbnails( $args['posts'] );
 	?>
 	<section class="section section--rail container" aria-labelledby="<?php echo esc_attr( $args['id'] ); ?>">
 		<div class="rail">
 			<div class="rail__head">
 				<h2 class="pill-title" id="<?php echo esc_attr( $args['id'] ); ?>"><?php echo esc_html( $args['title'] ); ?></h2>
 				<?php if ( $args['more_url'] ) : ?>
-					<a class="more-link" href="<?php echo esc_url( $args['more_url'] ); ?>"><?php esc_html_e( 'مشاهده همه', 'technopay' ); ?><?php technopay_icon( 'chevron-left' ); ?></a>
+					<a class="more-link" href="<?php echo esc_url( $args['more_url'] ); ?>" aria-describedby="<?php echo esc_attr( $args['id'] ); ?>"><?php esc_html_e( 'مشاهده همه', 'technopay' ); ?><?php technopay_icon( 'chevron-left' ); ?></a>
 				<?php endif; ?>
 			</div>
 			<div class="rail__grid">
@@ -352,6 +353,7 @@ function technopay_mini_list( $title, $posts ) {
 		return;
 	}
 	global $post;
+	technopay_prime_thumbnails( $posts );
 	?>
 	<section class="widget widget--mini">
 		<h2 class="widget__title"><?php echo esc_html( $title ); ?></h2>

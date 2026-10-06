@@ -8,8 +8,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// صفحه‌های بعدی آرشیو صفحه اصلی (/page/2) به صورت لیست ساده نمایش داده می‌شوند.
-if ( is_home() && is_paged() ) {
+// صفحه‌های بعدی (/page/2) و هر آدرس دارای ?sort= روی صفحه اصلی، به‌صورت لیست ساده نمایش داده می‌شوند.
+if ( is_home() && ( is_paged() || technopay_has_explicit_sort() ) ) {
 	get_template_part( 'index' );
 	return;
 }
