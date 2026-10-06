@@ -25,7 +25,7 @@ get_header();
 <main id="main" class="site-main">
 	<h1 class="sr-only"><?php bloginfo( 'name' ); ?></h1>
 	<?php
-	$technopay_sections = array( 'hero', 'trending', 'categories', 'latest', 'cta', 'cat_block', 'steps', 'panels', 'newsletter' );
+	$technopay_sections = array( 'hero', 'trending', 'categories', 'latest', 'popular', 'cta', 'cat_block', 'steps', 'panels', 'newsletter' );
 	foreach ( $technopay_sections as $technopay_section ) {
 		if ( technopay_option( 'home_' . $technopay_section ) ) {
 			get_template_part( 'template-parts/home/' . str_replace( '_', '-', $technopay_section ) );

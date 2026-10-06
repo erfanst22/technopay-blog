@@ -195,39 +195,8 @@
     updateProgress();
   }
 
-  var tocList = $("[data-toc]");
-  if (article && tocList) {
-    var headings = $$("h2, h3", article).filter(function (h) {
-      return !h.closest(".callout, .tp-cta, .wp-block-details, .post-foot, .no-toc") && h.textContent.trim();
-    });
-    var tocBox = tocList.closest(".toc");
-    if (tocBox && headings.length > 1) {
-      tocBox.hidden = false;
-      if (window.innerWidth < 1024) tocBox.open = false;
-    }
-    var links = [];
-    headings.forEach(function (h, i) {
-      if (!h.id) h.id = "section-" + (i + 1);
-      var li = document.createElement("li");
-      if (h.tagName === "H3") li.className = "toc__sub";
-      var a = document.createElement("a");
-      a.href = "#" + h.id;
-      a.textContent = h.textContent.trim();
-      a.addEventListener("click", function () { if (tocBox && window.innerWidth < 1024) tocBox.open = false; });
-      li.appendChild(a);
-      tocList.appendChild(li);
-      links.push(a);
-    });
-
-    if ("IntersectionObserver" in window && headings.length) {
-      var observer = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (!entry.isIntersecting) return;
-          var idx = headings.indexOf(entry.target);
-          links.forEach(function (l, i) { l.classList.toggle("is-active", i === idx); });
-        });
-      }, { rootMargin: "-80px 0px -70% 0px" });
-      headings.forEach(function (h) { observer.observe(h); });
-    }
-  }
+  // فهرست مطالب داخل مقاله (توسط PHP ساخته می‌شود): در موبایل بسته شروع شود تا صفحه کوتاه‌تر باشد.
+  $$(".toc-box").forEach(function (box) {
+    if (window.matchMedia("(max-width: 640px)").matches && $$("li", box).length > 6) box.open = false;
+  });
 })();

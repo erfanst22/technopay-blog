@@ -117,18 +117,22 @@ function technopay_use_jalali() {
 }
 
 /**
- * تاریخ خوانا (مثلاً «۱۴ مهر ۱۴۰۵»).
+ * تاریخ خوانا (مثلاً «۱۴ مهر ۱۴۰۵»؛ در حالت numeric: «۱۴۰۵/۰۷/۱۴»).
  *
- * @param int $timestamp تایم‌استمپ یونیکس.
+ * @param int    $timestamp تایم‌استمپ یونیکس.
+ * @param string $style     long | numeric.
  * @return string
  */
-function technopay_format_date( $timestamp ) {
+function technopay_format_date( $timestamp, $style = 'long' ) {
 	if ( ! technopay_use_jalali() ) {
-		return wp_date( get_option( 'date_format' ), $timestamp );
+		return wp_date( 'numeric' === $style ? 'Y/m/d' : get_option( 'date_format' ), $timestamp );
 	}
-	$parts         = explode( '-', wp_date( 'Y-n-j', $timestamp ) );
+	$parts             = explode( '-', wp_date( 'Y-n-j', $timestamp ) );
 	list( $y, $m, $d ) = technopay_gregorian_to_jalali( (int) $parts[0], (int) $parts[1], (int) $parts[2] );
-	$months        = technopay_jalali_months();
+	if ( 'numeric' === $style ) {
+		return technopay_fa_digits( sprintf( '%04d/%02d/%02d', $y, $m, $d ) );
+	}
+	$months = technopay_jalali_months();
 	return technopay_fa_digits( $d . ' ' . $months[ $m ] . ' ' . $y );
 }
 
@@ -165,11 +169,27 @@ function technopay_jalali_year() {
  * @param int|WP_Post|null $post نوشته.
  * @return string
  */
-function technopay_post_date( $post = null ) {
+function technopay_post_date( $post = null, $style = 'long' ) {
 	if ( ! technopay_use_jalali() ) {
-		return get_the_date( '', $post );
+		return get_the_date( 'numeric' === $style ? 'Y/m/d' : '', $post );
 	}
-	return technopay_format_date( (int) get_post_timestamp( $post ) );
+	return technopay_format_date( (int) get_post_timestamp( $post ), $style );
+}
+
+/**
+ * تاریخ آخرین به‌روزرسانی نوشته (فقط اگر حداقل یک روز بعد از انتشار باشد؛ در غیر این صورت رشته خالی).
+ *
+ * @param int|WP_Post|null $post  نوشته.
+ * @param string           $style long | numeric.
+ * @return string
+ */
+function technopay_modified_date( $post = null, $style = 'long' ) {
+	$published = (int) get_post_timestamp( $post );
+	$modified  = (int) get_post_timestamp( $post, 'modified' );
+	if ( $modified - $published < DAY_IN_SECONDS ) {
+		return '';
+	}
+	return technopay_format_date( $modified, $style );
 }
 
 /**
@@ -399,6 +419,122 @@ function technopay_get_popular_posts( $count = 5, $exclude = array() ) {
 	}
 
 	return $posts;
+}
+
+/**
+ * آخرین نوشته‌ها.
+ *
+ * @param int   $count   تعداد.
+ * @param int[] $exclude نوشته‌های مستثنا.
+ * @return WP_Post[]
+ */
+function technopay_get_latest_posts( $count = 5, $exclude = array() ) {
+	return get_posts(
+		array(
+			'posts_per_page'      => $count,
+			'post__not_in'        => array_map( 'intval', (array) $exclude ),
+			'ignore_sticky_posts' => true,
+			'no_found_rows'       => true,
+		)
+	);
+}
+
+/**
+ * نوشته‌های مرتبط: بر اساس برچسب‌ها و دسته‌های مشترک، با امتیازدهی و تکمیل با تازه‌ترین‌ها.
+ * (هر برچسب مشترک ۳ امتیاز، هر دسته مشترک ۲ امتیاز؛ در امتیاز برابر، جدیدتر جلوتر.)
+ *
+ * @param int|null $post_id شناسه نوشته.
+ * @param int      $count   تعداد.
+ * @return WP_Post[]
+ */
+function technopay_get_related_posts( $post_id = null, $count = 5 ) {
+	$post_id = $post_id ? (int) $post_id : (int) get_the_ID();
+	$count   = max( 1, (int) $count );
+	$cats    = wp_get_post_categories( $post_id );
+	$tags    = wp_get_post_tags( $post_id, array( 'fields' => 'ids' ) );
+	$default = (int) get_option( 'default_category' );
+	$cats    = array_values( array_diff( array_map( 'intval', (array) $cats ), array( $default ) ) );
+	$tags    = array_map( 'intval', is_wp_error( $tags ) ? array() : (array) $tags );
+	$result  = array();
+
+	if ( $cats || $tags ) {
+		$tax_query = array( 'relation' => 'OR' );
+		if ( $cats ) {
+			$tax_query[] = array(
+				'taxonomy' => 'category',
+				'field'    => 'term_id',
+				'terms'    => $cats,
+			);
+		}
+		if ( $tags ) {
+			$tax_query[] = array(
+				'taxonomy' => 'post_tag',
+				'field'    => 'term_id',
+				'terms'    => $tags,
+			);
+		}
+
+		$candidates = get_posts(
+			array(
+				'post__not_in'        => array( $post_id ),
+				'posts_per_page'      => 40,
+				'tax_query'           => $tax_query, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+				'ignore_sticky_posts' => true,
+				'no_found_rows'       => true,
+			)
+		);
+
+		$scored = array();
+		foreach ( $candidates as $index => $candidate ) {
+			$cand_tags = wp_list_pluck( (array) get_the_terms( $candidate, 'post_tag' ), 'term_id' );
+			$cand_cats = wp_list_pluck( (array) get_the_terms( $candidate, 'category' ), 'term_id' );
+			$score     = 3 * count( array_intersect( $tags, array_map( 'intval', $cand_tags ) ) ) + 2 * count( array_intersect( $cats, array_map( 'intval', $cand_cats ) ) );
+			// کلید دوم برای پایدار بودن ترتیب (candidates از قبل بر اساس تاریخ نزولی‌اند).
+			$scored[] = array( $score, -$index, $candidate );
+		}
+		usort(
+			$scored,
+			function ( $a, $b ) {
+				return $b[0] <=> $a[0] ?: $b[1] <=> $a[1];
+			}
+		);
+		$result = array_slice( wp_list_pluck( $scored, 2 ), 0, $count );
+	}
+
+	if ( count( $result ) < $count ) {
+		$result = array_merge(
+			$result,
+			technopay_get_latest_posts( $count - count( $result ), array_merge( array( $post_id ), wp_list_pluck( $result, 'ID' ) ) )
+		);
+	}
+
+	/**
+	 * فیلتر نوشته‌های مرتبط (برای افزونه‌هایی که الگوریتم بهتری دارند).
+	 *
+	 * @param WP_Post[] $result  نوشته‌ها.
+	 * @param int       $post_id شناسه نوشته.
+	 * @param int       $count   تعداد.
+	 */
+	return apply_filters( 'technopay_related_posts', $result, $post_id, $count );
+}
+
+/**
+ * آدرس صفحه «همه نوشته‌ها» (برای لینک «مشاهده همه»).
+ *
+ * @return string
+ */
+function technopay_posts_page_url() {
+	$page = (int) get_option( 'page_for_posts' );
+	if ( $page ) {
+		return (string) get_permalink( $page );
+	}
+	if ( 'posts' === get_option( 'show_on_front' ) ) {
+		global $wp_query;
+		if ( $wp_query && $wp_query->max_num_pages > 1 ) {
+			return get_pagenum_link( 2 );
+		}
+	}
+	return '';
 }
 
 /**

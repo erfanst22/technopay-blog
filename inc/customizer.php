@@ -43,6 +43,7 @@ function technopay_defaults() {
 		'home_trending'        => true,
 		'home_categories'      => true,
 		'home_latest'          => true,
+		'home_popular'         => true,
 		'home_cta'             => true,
 		'home_cat_block'       => true,
 		'home_steps'           => true,
@@ -100,6 +101,9 @@ function technopay_defaults() {
 		'letter_avatars'       => true,
 		'show_author_box'      => true,
 		'show_related'         => true,
+		'show_toc'             => true,
+		'policy_text'          => '',
+		'policy_url'           => '',
 	);
 }
 
@@ -209,7 +213,8 @@ function technopay_customize_register( $wp_customize ) {
 		array( 'home_hero', 'technopay_home', 'checkbox', __( 'بخش مطالب ویژه (نوشته‌های سنجاق‌شده در اولویت‌اند)', 'technopay' ) ),
 		array( 'home_trending', 'technopay_home', 'checkbox', __( 'نوار موضوعات داغ (برچسب‌ها)', 'technopay' ) ),
 		array( 'home_categories', 'technopay_home', 'checkbox', __( 'دسته‌بندی‌ها', 'technopay' ) ),
-		array( 'home_latest', 'technopay_home', 'checkbox', __( 'آخرین مطالب + سایدبار', 'technopay' ) ),
+		array( 'home_latest', 'technopay_home', 'checkbox', __( 'ردیف آخرین مطالب', 'technopay' ) ),
+		array( 'home_popular', 'technopay_home', 'checkbox', __( 'ردیف پربازدیدترین مطالب', 'technopay' ) ),
 		array( 'home_cta', 'technopay_home', 'checkbox', __( 'بنر تبلیغاتی', 'technopay' ) ),
 		array( 'home_cat_block', 'technopay_home', 'checkbox', __( 'بلوک دسته ویژه', 'technopay' ) ),
 		array( 'home_cat_block_cat', 'technopay_home', 'select', __( 'دسته بلوک ویژه', 'technopay' ), $cat_choices ),
@@ -284,7 +289,10 @@ function technopay_customize_register( $wp_customize ) {
 			array( 'jalali_dates', 'technopay_general', 'checkbox', __( 'نمایش تاریخ شمسی (اگر افزونه پارسی‌دیت فعال باشد، از آن استفاده می‌شود)', 'technopay' ) ),
 			array( 'letter_avatars', 'technopay_general', 'checkbox', __( 'آواتار حرفی به جای گراواتار (سریع‌تر در ایران)', 'technopay' ) ),
 			array( 'show_author_box', 'technopay_general', 'checkbox', __( 'نمایش باکس نویسنده در نوشته‌ها', 'technopay' ) ),
-			array( 'show_related', 'technopay_general', 'checkbox', __( 'نمایش مطالب مرتبط', 'technopay' ) ),
+			array( 'show_related', 'technopay_general', 'checkbox', __( 'نمایش «مقالات مرتبط» در سایدبار نوشته', 'technopay' ) ),
+			array( 'show_toc', 'technopay_general', 'checkbox', __( 'فهرست مطالب خودکار داخل نوشته‌ها (حداقل ۳ سرتیتر)', 'technopay' ) ),
+			array( 'policy_text', 'technopay_general', 'text', __( 'متن لینک زیر عنوان نوشته (مثلاً «سیاست انتشار مطالب»)', 'technopay' ) ),
+			array( 'policy_url', 'technopay_general', 'url', __( 'آدرس لینک بالا (خالی = مخفی)', 'technopay' ) ),
 		)
 	);
 

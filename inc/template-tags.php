@@ -104,14 +104,18 @@ function technopay_excerpt( $words = 28 ) {
 
 /**
  * مسیر راهنما (Breadcrumb). در صورت وجود از Yoast یا RankMath استفاده می‌شود.
+ *
+ * @param string $extra_class کلاس اضافه (مثلاً breadcrumb--box برای نمایش کادردار).
  */
-function technopay_breadcrumb() {
+function technopay_breadcrumb( $extra_class = '' ) {
+	$class = trim( 'breadcrumb ' . $extra_class );
+
 	if ( function_exists( 'yoast_breadcrumb' ) && class_exists( 'WPSEO_Options' ) && WPSEO_Options::get( 'breadcrumbs-enable' ) ) {
-		yoast_breadcrumb( '<nav class="breadcrumb" aria-label="' . esc_attr__( 'مسیر صفحه', 'technopay' ) . '">', '</nav>' );
+		yoast_breadcrumb( '<nav class="' . esc_attr( $class ) . '" aria-label="' . esc_attr__( 'مسیر صفحه', 'technopay' ) . '">', '</nav>' );
 		return;
 	}
 	if ( function_exists( 'rank_math_the_breadcrumbs' ) ) {
-		echo '<nav class="breadcrumb" aria-label="' . esc_attr__( 'مسیر صفحه', 'technopay' ) . '">';
+		echo '<nav class="' . esc_attr( $class ) . '" aria-label="' . esc_attr__( 'مسیر صفحه', 'technopay' ) . '">';
 		rank_math_the_breadcrumbs();
 		echo '</nav>';
 		return;
@@ -154,7 +158,8 @@ function technopay_breadcrumb() {
 	}
 
 	printf(
-		'<nav class="breadcrumb" aria-label="%1$s">%2$s</nav>',
+		'<nav class="%1$s" aria-label="%2$s">%3$s</nav>',
+		esc_attr( $class ),
 		esc_attr__( 'مسیر صفحه', 'technopay' ),
 		implode( $sep, $items ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	);
@@ -285,6 +290,82 @@ function technopay_section_head( $title, $more_url = '', $subtitle = '', $tag = 
 		);
 	}
 	echo '</div>';
+}
+
+/**
+ * ردیف کارت‌های فشرده داخل جعبه خاکستری (آخرین مطالب، پربازدیدترین‌ها و ...).
+ *
+ * @param array $args {
+ *     @type string    $id       شناسه یکتا برای aria-labelledby.
+ *     @type string    $title    عنوان بخش.
+ *     @type WP_Post[] $posts    نوشته‌ها.
+ *     @type string    $meta     نوع متای پایین کارت: date | views | comments.
+ *     @type string    $more_url لینک «مشاهده همه» (خالی = مخفی).
+ * }
+ */
+function technopay_post_row( $args ) {
+	$args = wp_parse_args(
+		$args,
+		array(
+			'id'       => wp_unique_id( 'rail-' ),
+			'title'    => '',
+			'posts'    => array(),
+			'meta'     => 'date',
+			'more_url' => '',
+		)
+	);
+	if ( ! $args['posts'] ) {
+		return;
+	}
+	global $post;
+	?>
+	<section class="section section--rail container" aria-labelledby="<?php echo esc_attr( $args['id'] ); ?>">
+		<div class="rail">
+			<div class="rail__head">
+				<h2 class="pill-title" id="<?php echo esc_attr( $args['id'] ); ?>"><?php echo esc_html( $args['title'] ); ?></h2>
+				<?php if ( $args['more_url'] ) : ?>
+					<a class="more-link" href="<?php echo esc_url( $args['more_url'] ); ?>"><?php esc_html_e( 'مشاهده همه', 'technopay' ); ?><?php technopay_icon( 'chevron-left' ); ?></a>
+				<?php endif; ?>
+			</div>
+			<div class="rail__grid">
+				<?php
+				foreach ( $args['posts'] as $post ) { // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+					setup_postdata( $post );
+					get_template_part( 'template-parts/card-compact', null, array( 'meta' => $args['meta'] ) );
+				}
+				wp_reset_postdata();
+				?>
+			</div>
+		</div>
+	</section>
+	<?php
+}
+
+/**
+ * ویجت لیستی کوچک (تصویر بندانگشتی + عنوان + تاریخ) برای سایدبار نوشته.
+ *
+ * @param string    $title عنوان.
+ * @param WP_Post[] $posts نوشته‌ها.
+ */
+function technopay_mini_list( $title, $posts ) {
+	if ( ! $posts ) {
+		return;
+	}
+	global $post;
+	?>
+	<section class="widget widget--mini">
+		<h2 class="widget__title"><?php echo esc_html( $title ); ?></h2>
+		<div class="mini-list">
+			<?php
+			foreach ( $posts as $post ) { // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				setup_postdata( $post );
+				get_template_part( 'template-parts/mini' );
+			}
+			wp_reset_postdata();
+			?>
+		</div>
+	</section>
+	<?php
 }
 
 /**

@@ -17,6 +17,7 @@ require TECHNOPAY_DIR . '/inc/menus.php';
 require TECHNOPAY_DIR . '/inc/customizer.php';
 require TECHNOPAY_DIR . '/inc/widgets.php';
 require TECHNOPAY_DIR . '/inc/term-meta.php';
+require TECHNOPAY_DIR . '/inc/content-toc.php';
 
 /**
  * پشتیبانی‌های قالب، منوها و اندازه تصاویر.
@@ -84,6 +85,7 @@ function technopay_setup() {
 
 	add_image_size( 'technopay-hero', 1280, 800, true );
 	add_image_size( 'technopay-card', 768, 480, true );
+	add_image_size( 'technopay-tile', 400, 225, true );
 	add_image_size( 'technopay-thumb', 240, 240, true );
 
 	register_nav_menus(

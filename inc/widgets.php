@@ -35,7 +35,7 @@ function technopay_widgets_init() {
 			array(
 				'name'        => __( 'سایدبار نوشته', 'technopay' ),
 				'id'          => 'technopay-single',
-				'description' => __( 'زیر فهرست مطالب در صفحه نوشته‌ها. اگر خالی باشد، بنر دریافت اعتبار نمایش داده می‌شود.', 'technopay' ),
+				'description' => __( 'ستون کنار مقاله در صفحه نوشته‌ها. اگر خالی باشد، لیست‌های پربازدیدترین، جدیدترین و مقالات مرتبط نمایش داده می‌شود.', 'technopay' ),
 			)
 		)
 	);
@@ -213,6 +213,19 @@ function technopay_default_main_sidebar() {
 		</section>
 	<?php endif; ?>
 	<?php
+}
+
+/**
+ * محتوای پیش‌فرض سایدبار نوشته (وقتی سایدبار «سایدبار نوشته» خالی است):
+ * پربازدیدترین، جدیدترین و مقالات مرتبط.
+ */
+function technopay_default_single_sidebar() {
+	$post_id = (int) get_the_ID();
+	technopay_mini_list( __( 'پربازدیدترین مقالات', 'technopay' ), technopay_get_popular_posts( 5, array( $post_id ) ) );
+	technopay_mini_list( __( 'جدیدترین مقالات', 'technopay' ), technopay_get_latest_posts( 5, array( $post_id ) ) );
+	if ( technopay_option( 'show_related' ) ) {
+		technopay_mini_list( __( 'مقالات مرتبط', 'technopay' ), technopay_get_related_posts( $post_id, 5 ) );
+	}
 }
 
 /**

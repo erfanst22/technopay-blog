@@ -1,0 +1,29 @@
+/* TechnoPay Smart Related Posts — رابط ادمین */
+#tprp-app { direction: rtl; text-align: right; }
+.tprp-toolbar, .tprp-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.tprp-status { margin: 8px 0; color: #50575e; }
+.tprp-status.is-error { color: #b32d2e; font-weight: 600; }
+.tprp-empty { padding: 14px; background: #f6f7f7; border: 1px dashed #c3c4c7; border-radius: 6px; }
+.tprp-list { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+.tprp-item { border: 1px solid #dcdcde; border-radius: 8px; background: #fff; padding: 12px 14px; }
+.tprp-item.is-approved { border-color: #2271b1; box-shadow: 0 0 0 1px #2271b1 inset; background: #f6faff; }
+.tprp-item__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; font-weight: 600; }
+.tprp-item__section { font-size: 12px; font-weight: 500; color: #646970; background: #f0f0f1; border-radius: 999px; padding: 2px 10px; }
+.tprp-item__excerpt { margin: 0 0 10px; padding: 8px 12px; border-inline-start: 3px solid #c3c4c7; background: #f6f7f7; color: #3c434a; line-height: 1.9; }
+.tprp-cands { display: flex; flex-direction: column; gap: 6px; }
+.tprp-cand { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border: 1px solid #e0e0e0; border-radius: 6px; cursor: pointer; background: #fff; }
+.tprp-cand:hover { border-color: #2271b1; }
+.tprp-cand__thumb { width: 56px; height: 42px; flex: none; object-fit: cover; border-radius: 4px; background: #dcdcde; }
+.tprp-cand__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tprp-cand__title { font-weight: 600; text-decoration: none; }
+.tprp-cand__meta { display: flex; gap: 10px; font-size: 12px; }
+.tprp-cand__score { color: #00754a; font-weight: 600; }
+.tprp-cand__warn { color: #b32d2e; }
+.tprp-cand__kw { font-size: 12px; color: #646970; }
+.tprp-cand--none { color: #646970; }
+.tprp-item__foot { margin-top: 10px; font-size: 13px; }
+.tprp-stale { margin-top: 12px; padding: 10px 14px; background: #fcf9e8; border: 1px solid #dba617; border-radius: 6px; }
+.tprp-stale:empty { display: none; }
+.tprp-stale__title { margin: 0 0 6px; font-weight: 600; }
+.tprp-stale ul { margin: 0; padding-inline-start: 18px; list-style: disc; }
+.tprp-disable { display: block; margin-top: 14px; }
