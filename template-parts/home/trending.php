@@ -11,7 +11,7 @@ $technopay_tags = get_tags(
 	array(
 		'orderby' => 'count',
 		'order'   => 'DESC',
-		'number'  => 10,
+		'number'  => max( 1, (int) technopay_block_setting( 'count', 10 ) ),
 	)
 );
 if ( ! $technopay_tags ) {

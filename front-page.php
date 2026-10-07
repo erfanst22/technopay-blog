@@ -1,7 +1,7 @@
 <?php
 /**
  * صفحه اصلی مجله.
- * ترتیب و نمایش بخش‌ها از «سفارشی‌سازی ← تنظیمات قالب تکنوپی ← صفحه اصلی» قابل تغییر است.
+ * ترتیب و نمایش بخش‌ها از «نمایش ← چیدمان صفحات ← صفحه اصلی» (کشیدن و رها کردن) قابل تغییر است.
  *
  * @package TechnoPay
  */
@@ -24,14 +24,7 @@ get_header();
 ?>
 <main id="main" class="site-main">
 	<h1 class="sr-only"><?php bloginfo( 'name' ); ?></h1>
-	<?php
-	$technopay_sections = array( 'hero', 'trending', 'categories', 'latest', 'popular', 'cta', 'cat_block', 'steps', 'panels', 'newsletter' );
-	foreach ( $technopay_sections as $technopay_section ) {
-		if ( technopay_option( 'home_' . $technopay_section ) ) {
-			get_template_part( 'template-parts/home/' . str_replace( '_', '-', $technopay_section ) );
-		}
-	}
-	?>
+	<?php technopay_render_region( 'home', 'main' ); ?>
 </main>
 <?php
 get_footer();

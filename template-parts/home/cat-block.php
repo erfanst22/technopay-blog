@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$technopay_term = technopay_get_section_category( 'home_cat_block_cat', 1 );
+$technopay_term = technopay_resolve_category( (int) technopay_block_setting( 'category', 0 ), 1 );
 if ( ! $technopay_term ) {
 	return;
 }

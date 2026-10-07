@@ -9,8 +9,8 @@ defined( 'ABSPATH' ) || exit;
 
 $technopay_panels = array_filter(
 	array(
-		technopay_get_section_category( 'home_panel_1_cat', 2 ),
-		technopay_get_section_category( 'home_panel_2_cat', 3 ),
+		technopay_resolve_category( (int) technopay_block_setting( 'category_1', 0 ), 2 ),
+		technopay_resolve_category( (int) technopay_block_setting( 'category_2', 0 ), 3 ),
 	)
 );
 if ( ! $technopay_panels ) {

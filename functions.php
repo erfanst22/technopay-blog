@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TECHNOPAY_VERSION', '1.1.0' );
+define( 'TECHNOPAY_VERSION', '1.2.0' );
 define( 'TECHNOPAY_DIR', get_template_directory() );
 define( 'TECHNOPAY_URI', get_template_directory_uri() );
 
@@ -18,6 +18,9 @@ require TECHNOPAY_DIR . '/inc/customizer.php';
 require TECHNOPAY_DIR . '/inc/widgets.php';
 require TECHNOPAY_DIR . '/inc/term-meta.php';
 require TECHNOPAY_DIR . '/inc/content-toc.php';
+require TECHNOPAY_DIR . '/inc/layout.php';
+require TECHNOPAY_DIR . '/inc/layout-blocks.php';
+require TECHNOPAY_DIR . '/inc/layout-admin.php';
 
 /**
  * پشتیبانی‌های قالب، منوها و اندازه تصاویر.

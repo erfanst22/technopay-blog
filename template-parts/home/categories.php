@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$technopay_terms = technopay_get_top_categories( 6 );
+$technopay_terms = technopay_get_top_categories( max( 2, (int) technopay_block_setting( 'count', 6 ) ) );
 if ( count( $technopay_terms ) < 2 ) {
 	return;
 }

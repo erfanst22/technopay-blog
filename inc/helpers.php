@@ -607,7 +607,18 @@ function technopay_get_top_categories( $count = 6 ) {
  * @return WP_Term|null
  */
 function technopay_get_section_category( $option_key, $fallback_index = 0 ) {
-	$term_id = absint( technopay_option( $option_key ) );
+	return technopay_resolve_category( absint( technopay_option( $option_key ) ), $fallback_index );
+}
+
+/**
+ * دسته انتخاب‌شده یا (اگر صفر بود) دسته خودکار بر اساس ترتیب پرمطلب‌ترین‌ها.
+ *
+ * @param int $term_id        شناسه دسته (۰ = خودکار).
+ * @param int $fallback_index اندیس در لیست دسته‌های پرمطلب.
+ * @return WP_Term|null
+ */
+function technopay_resolve_category( $term_id, $fallback_index = 0 ) {
+	$term_id = absint( $term_id );
 	if ( $term_id ) {
 		$term = get_term( $term_id, 'category' );
 		if ( $term instanceof WP_Term ) {

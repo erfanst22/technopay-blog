@@ -236,8 +236,16 @@ function technopay_share_buttons() {
 /**
  * نوار ابزار آرشیو: تعداد مطالب، مرتب‌سازی و نوع نمایش.
  */
-function technopay_archive_toolbar() {
+function technopay_archive_toolbar( $args = array() ) {
 	global $wp_query;
+	$args    = wp_parse_args(
+		$args,
+		array(
+			'show_sort'        => true,
+			'show_view_switch' => true,
+			'view'             => 'list',
+		)
+	);
 	$current = technopay_current_sort();
 	$options = array(
 		'latest'   => __( 'جدیدترین', 'technopay' ),
@@ -252,15 +260,19 @@ function technopay_archive_toolbar() {
 			printf( esc_html__( '%s مطلب', 'technopay' ), '<strong>' . esc_html( technopay_number( $wp_query->found_posts ) ) . '</strong>' );
 			?>
 		</p>
+		<?php if ( $args['show_sort'] ) : ?>
 		<div class="tabs" aria-label="<?php esc_attr_e( 'مرتب‌سازی', 'technopay' ); ?>">
 			<?php foreach ( $options as $key => $label ) : ?>
 				<a class="chip<?php echo $key === $current ? ' is-active' : ''; ?>" href="<?php echo esc_url( ( 'latest' === $key && ! ( is_home() && is_front_page() ) ) ? remove_query_arg( 'sort', get_pagenum_link( 1 ) ) : add_query_arg( 'sort', $key, get_pagenum_link( 1 ) ) ); ?>"<?php echo $key === $current ? ' aria-current="true"' : ''; ?>><?php echo esc_html( $label ); ?></a>
 			<?php endforeach; ?>
 		</div>
+		<?php endif; ?>
+		<?php if ( $args['show_view_switch'] ) : ?>
 		<div class="view-switch">
-			<button type="button" class="icon-btn is-active" data-view="list" aria-pressed="true" aria-label="<?php esc_attr_e( 'نمایش لیستی', 'technopay' ); ?>"><?php technopay_icon( 'list' ); ?></button>
-			<button type="button" class="icon-btn" data-view="grid" aria-pressed="false" aria-label="<?php esc_attr_e( 'نمایش شبکه‌ای', 'technopay' ); ?>"><?php technopay_icon( 'grid' ); ?></button>
+			<button type="button" class="icon-btn<?php echo 'grid' === $args['view'] ? '' : ' is-active'; ?>" data-view="list" aria-pressed="<?php echo 'grid' === $args['view'] ? 'false' : 'true'; ?>" aria-label="<?php esc_attr_e( 'نمایش لیستی', 'technopay' ); ?>"><?php technopay_icon( 'list' ); ?></button>
+			<button type="button" class="icon-btn<?php echo 'grid' === $args['view'] ? ' is-active' : ''; ?>" data-view="grid" aria-pressed="<?php echo 'grid' === $args['view'] ? 'true' : 'false'; ?>" aria-label="<?php esc_attr_e( 'نمایش شبکه‌ای', 'technopay' ); ?>"><?php technopay_icon( 'grid' ); ?></button>
 		</div>
+		<?php endif; ?>
 	</div>
 	<?php
 }

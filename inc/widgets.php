@@ -143,13 +143,13 @@ function technopay_render_promo( $args = array() ) {
 /**
  * لیست دسته‌ها با تعداد مطالب.
  */
-function technopay_render_category_list() {
+function technopay_render_category_list( $count = 8 ) {
 	$terms = get_categories(
 		array(
 			'orderby'    => 'count',
 			'order'      => 'DESC',
 			'hide_empty' => true,
-			'number'     => 8,
+			'number'     => max( 1, (int) $count ),
 		)
 	);
 	if ( ! $terms ) {
@@ -170,12 +170,12 @@ function technopay_render_category_list() {
 /**
  * برچسب‌های پرکاربرد.
  */
-function technopay_render_tag_cloud() {
+function technopay_render_tag_cloud( $count = 14 ) {
 	$tags = get_tags(
 		array(
 			'orderby' => 'count',
 			'order'   => 'DESC',
-			'number'  => 14,
+			'number'  => max( 1, (int) $count ),
 		)
 	);
 	if ( ! $tags ) {
@@ -186,49 +186,6 @@ function technopay_render_tag_cloud() {
 		printf( '<a class="tag" href="%1$s">%2$s</a>', esc_url( get_tag_link( $tag ) ), esc_html( $tag->name ) );
 	}
 	echo '</div>';
-}
-
-/**
- * ابزارک‌های پیش‌فرض سایدبار اصلی (وقتی سایدبار خالی است).
- */
-function technopay_default_main_sidebar() {
-	?>
-	<section class="widget">
-		<h2 class="widget__title"><?php technopay_icon( 'flame' ); ?><?php esc_html_e( 'پربازدیدترین‌ها', 'technopay' ); ?></h2>
-		<?php technopay_render_popular_list( 5 ); ?>
-	</section>
-	<section class="widget">
-		<h2 class="widget__title"><?php technopay_icon( 'calculator' ); ?><?php esc_html_e( 'محاسبه‌گر اقساط', 'technopay' ); ?></h2>
-		<?php technopay_render_calculator(); ?>
-	</section>
-	<section class="widget">
-		<h2 class="widget__title"><?php technopay_icon( 'folder' ); ?><?php esc_html_e( 'دسته‌بندی‌ها', 'technopay' ); ?></h2>
-		<?php technopay_render_category_list(); ?>
-	</section>
-	<?php technopay_render_promo(); ?>
-	<?php if ( get_tags( array( 'number' => 1 ) ) ) : ?>
-		<section class="widget">
-			<h2 class="widget__title"><?php technopay_icon( 'tag' ); ?><?php esc_html_e( 'برچسب‌های پرکاربرد', 'technopay' ); ?></h2>
-			<?php technopay_render_tag_cloud(); ?>
-		</section>
-	<?php endif; ?>
-	<?php
-}
-
-/**
- * محتوای پیش‌فرض سایدبار نوشته (وقتی سایدبار «سایدبار نوشته» خالی است):
- * پربازدیدترین، جدیدترین و مقالات مرتبط.
- */
-function technopay_default_single_sidebar() {
-	$post_id = (int) get_the_ID();
-	$popular = technopay_get_popular_posts( 5, array( $post_id ) );
-	$latest  = technopay_get_latest_posts( 5, array( $post_id ) );
-	technopay_mini_list( __( 'پربازدیدترین مقالات', 'technopay' ), $popular );
-	technopay_mini_list( __( 'جدیدترین مقالات', 'technopay' ), $latest );
-	if ( technopay_option( 'show_related' ) ) {
-		// مطالب مرتبط، موارد نمایش‌داده‌شده در دو لیست بالا را تکرار نمی‌کنند.
-		technopay_mini_list( __( 'مقالات مرتبط', 'technopay' ), technopay_get_related_posts( $post_id, 5, array_merge( wp_list_pluck( $popular, 'ID' ), wp_list_pluck( $latest, 'ID' ) ) ) );
-	}
 }
 
 /**

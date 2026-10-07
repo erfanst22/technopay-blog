@@ -1,0 +1,72 @@
+/* TechnoPay Mag — صفحه «نمایش ← چیدمان صفحات» */
+.tpl-wrap { max-width: 1180px; }
+.tpl-wrap h1 { margin-bottom: 8px; }
+.tpl-lead { max-width: 820px; font-size: 14px; line-height: 2; }
+.tpl-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+.tpl-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 18px 0 0; border-bottom: 1px solid #c3c4c7; }
+.tpl-tab { appearance: none; border: 1px solid #c3c4c7; border-bottom: 0; border-radius: 8px 8px 0 0; background: #f0f0f1; color: #3c434a; padding: 9px 18px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: -1px; }
+.tpl-tab:hover { background: #fff; color: #135e96; }
+.tpl-tab.is-active { background: #fff; color: #1d2327; border-bottom: 1px solid #fff; }
+.tpl-tab:focus-visible { outline: 2px solid #2271b1; outline-offset: 1px; }
+
+.tpl-panel { background: #fff; border: 1px solid #c3c4c7; border-top: 0; padding: 18px 20px 24px; }
+.tpl-panel[hidden] { display: none; }
+.tpl-panel__head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.tpl-panel__head h2 { margin: 0; font-size: 18px; }
+.tpl-panel__tools { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.tpl-options { margin-bottom: 18px; padding: 12px 14px; background: #f6f7f7; border: 1px solid #dcdcde; border-radius: 8px; }
+.tpl-options h3 { margin: 0 0 8px; font-size: 14px; }
+
+.tpl-region { margin-top: 22px; }
+.tpl-region__head h3 { margin: 0; font-size: 15px; }
+.tpl-region__head .description { margin: 2px 0 10px; }
+.tpl-cols { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; align-items: start; }
+.tpl-col h4 { margin: 0 0 8px; font-size: 13px; color: #50575e; }
+.tpl-col--active { padding: 10px; border: 2px solid #2271b1; border-radius: 10px; background: #f0f6fc; }
+.tpl-col--pool { padding: 10px; border: 2px dashed #c3c4c7; border-radius: 10px; background: #fafafa; }
+
+.tpl-list { display: flex; flex-direction: column; gap: 8px; min-height: 64px; margin: 0; padding: 0; list-style: none; }
+.tpl-list:empty::after { content: attr(data-empty); display: block; padding: 18px 12px; text-align: center; color: #646970; font-size: 13px; border: 1px dashed #c3c4c7; border-radius: 8px; background: rgba(255, 255, 255, .6); }
+
+.tpl-item { background: #fff; border: 1px solid #c3c4c7; border-radius: 8px; box-shadow: 0 1px 1px rgba(0, 0, 0, .04); }
+.tpl-item.is-ghost { opacity: .35; border-style: dashed; }
+.tpl-item.is-chosen { box-shadow: 0 0 0 2px #2271b1; }
+.tpl-item__head { display: flex; align-items: center; gap: 10px; padding: 8px 10px; }
+.tpl-handle { flex: none; display: grid; place-items: center; width: 28px; height: 34px; cursor: grab; color: #8c8f94; font-size: 22px; line-height: 1; user-select: none; touch-action: none; border-radius: 6px; }
+.tpl-handle:hover { color: #2271b1; background: #f0f0f1; }
+.tpl-handle:active { cursor: grabbing; }
+.tpl-item__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.tpl-item__text strong { font-size: 14px; color: #1d2327; }
+.tpl-item__text small { font-size: 12px; color: #646970; line-height: 1.7; }
+.tpl-badge { align-self: flex-start; font-size: 11px; font-weight: 600; color: #8a4b00; background: #fcf3dc; border: 1px solid #f0d58c; border-radius: 999px; padding: 0 8px; }
+.tpl-item__actions { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+.tpl-act.button { padding: 0 8px; min-height: 28px; line-height: 26px; font-size: 12px; }
+
+/* دکمه‌ها بر اساس لیستی که آیتم داخل آن است */
+.tpl-list[data-list="pool"] .tpl-act--up, .tpl-list[data-list="pool"] .tpl-act--down, .tpl-list[data-list="pool"] .tpl-act--remove { display: none; }
+.tpl-list[data-list="active"] .tpl-act--add { display: none; }
+.tpl-item[data-required="1"] .tpl-act--remove { display: none; }
+
+.tpl-settings { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px 16px; padding: 10px 14px 12px; border-top: 1px solid #dcdcde; background: #f6f7f7; border-radius: 0 0 8px 8px; }
+.tpl-settings[hidden] { display: none; }
+.tpl-field { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.tpl-field label { font-weight: 600; }
+.tpl-field--toggle label { font-weight: 500; }
+.tpl-field input[type="text"], .tpl-field select, .tpl-field input[type="number"] { width: 100%; max-width: none; }
+
+.tpl-options .tpl-field { max-width: 260px; }
+
+.tpl-savebar { position: sticky; bottom: 0; z-index: 5; display: flex; align-items: center; gap: 14px; margin-top: 16px; padding: 12px 16px; background: rgba(255, 255, 255, .96); border: 1px solid #c3c4c7; border-radius: 8px; box-shadow: 0 -4px 12px rgba(0, 0, 0, .06); }
+.tpl-dirty { color: #b32d2e; font-size: 13px; font-weight: 600; }
+
+.tpl-backup { margin-top: 28px; padding: 12px 16px; background: #fff; border: 1px solid #c3c4c7; border-radius: 8px; }
+.tpl-backup summary { cursor: pointer; font-weight: 600; }
+.tpl-backup label { display: block; margin: 12px 0 4px; font-weight: 600; }
+
+@media (max-width: 900px) {
+  .tpl-cols { grid-template-columns: minmax(0, 1fr); }
+  .tpl-item__head { flex-wrap: wrap; }
+  .tpl-item__actions { width: 100%; justify-content: flex-start; }
+}
