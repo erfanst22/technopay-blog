@@ -188,7 +188,7 @@ function technopay_layout_registry() {
 				'show_share' => $tog( 'دکمه‌های اشتراک‌گذاری' ),
 			)
 		),
-		's_author'          => $block( 'باکس نویسنده', 'عکس، توضیح کوتاه و لینک مطالب نویسنده.', 'technopay_block_s_author' ),
+		's_author'          => $block( 'باکس نویسنده', 'عکس، نام و توضیح کوتاه نویسنده.', 'technopay_block_s_author' ),
 		's_nav'             => $block( 'نوشته قبلی و بعدی', 'دو کارت لینک در پایین مقاله.', 'technopay_block_s_nav' ),
 		's_comments'        => $block( 'دیدگاه‌ها', 'لیست دیدگاه‌ها و فرم ارسال (اگر برای نوشته باز باشد).', 'technopay_block_s_comments' ),
 		's_related_grid'    => $block(

@@ -34,7 +34,7 @@ if ( has_action( 'set_comment_cookies', 'wp_set_comment_cookies' ) && get_option
 }
 ?>
 <section id="comments" class="comments">
-	<h2 class="comments__title">
+	<h4 class="comments__title">
 		<?php technopay_icon( 'message' ); ?>
 		<?php
 		$technopay_count = get_comments_number();
@@ -45,7 +45,7 @@ if ( has_action( 'set_comment_cookies', 'wp_set_comment_cookies' ) && get_option
 			esc_html_e( 'دیدگاه‌ها', 'technopay' );
 		}
 		?>
-	</h2>
+	</h4>
 
 	<?php if ( have_comments() ) : ?>
 		<ol class="comment-list">
@@ -86,8 +86,8 @@ if ( has_action( 'set_comment_cookies', 'wp_set_comment_cookies' ) && get_option
 			/* translators: %s: author name */
 			'title_reply_to'       => __( 'پاسخ به %s', 'technopay' ),
 			'cancel_reply_link'    => __( 'لغو پاسخ', 'technopay' ),
-			'title_reply_before'   => '<h3 id="reply-title" class="comment-reply-title">',
-			'title_reply_after'    => '</h3>',
+			'title_reply_before'   => '<h4 id="reply-title" class="comment-reply-title">',
+			'title_reply_after'    => '</h4>',
 			'comment_notes_before' => '<p class="comment-notes">' . esc_html__( 'نشانی ایمیل شما منتشر نخواهد شد. بخش‌های موردنیاز علامت‌گذاری شده‌اند *', 'technopay' ) . '</p>',
 			'class_submit'         => 'btn btn--primary',
 			'label_submit'         => __( 'ارسال دیدگاه', 'technopay' ),

@@ -403,20 +403,13 @@ function technopay_block_s_author() {
 	<section class="author-box" aria-label="<?php esc_attr_e( 'درباره نویسنده', 'technopay' ); ?>">
 		<?php echo technopay_get_avatar( $author_id, get_the_author(), 72, 'avatar--lg' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		<div>
-			<h2><?php the_author(); ?> <small><?php esc_html_e( 'نویسنده', 'technopay' ); ?></small></h2>
+			<h4><?php the_author(); ?> <small><?php esc_html_e( 'نویسنده', 'technopay' ); ?></small></h4>
 			<p>
 				<?php
 				$bio = get_the_author_meta( 'description' );
 				echo esc_html( $bio ? $bio : __( 'نویسنده مجله تکنوپی؛ همراه شما برای خرید هوشمند و مدیریت بهتر مالی.', 'technopay' ) );
 				?>
 			</p>
-			<a class="more-link" href="<?php echo esc_url( get_author_posts_url( $author_id ) ); ?>">
-				<?php
-				/* translators: %s: number of posts */
-				echo esc_html( sprintf( __( 'مشاهده همه مطالب (%s)', 'technopay' ), technopay_number( count_user_posts( $author_id, 'post', true ) ) ) );
-				?>
-				<?php technopay_icon( 'chevron-left' ); ?>
-			</a>
 		</div>
 	</section>
 	<?php

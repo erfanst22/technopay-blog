@@ -910,10 +910,9 @@ img.avatar { object-fit: cover; background: var(--surface-2); }
 .share { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--ink); }
 
 .author-box { display: flex; gap: 20px; align-items: flex-start; margin-top: 24px; padding: 24px; border-radius: 24px; background: var(--surface); border: 1px solid var(--border); }
-.author-box h2 { font-size: 18px; }
-.author-box h2 small { font-size: 13px; color: var(--muted); font-weight: 500; margin-inline-start: 6px; }
+.author-box h4 { font-size: 18px; }
+.author-box h4 small { font-size: 13px; color: var(--muted); font-weight: 500; margin-inline-start: 6px; }
 .author-box p { font-size: 14px; color: var(--muted); margin-top: 6px; }
-.author-box .more-link { margin-top: 10px; }
 
 .post-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
 .post-nav a { display: flex; flex-direction: column; gap: 6px; padding: 18px 20px; border-radius: 20px; background: var(--surface); border: 1px solid var(--border); transition: all .2s; }
