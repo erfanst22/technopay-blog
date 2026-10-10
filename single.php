@@ -16,7 +16,8 @@ while ( have_posts() ) :
 
 	// سایدبار را قبل از چاپ می‌سازیم تا اگر خالی یا خاموش بود ستونی برایش رزرو نشود.
 	$technopay_position = technopay_page_option( 'single', 'sidebar_position' );
-	$technopay_sidebar  = 'none' === $technopay_position ? '' : technopay_region_html( 'single', 'sidebar' );
+	$technopay_sb       = 'none' === $technopay_position ? array( 'html' => '', 'sticky' => false ) : technopay_sidebar_parts( 'single' );
+	$technopay_sidebar  = $technopay_sb['html'];
 	if ( '' === $technopay_sidebar ) {
 		$technopay_position = 'none';
 	}
@@ -36,7 +37,7 @@ while ( have_posts() ) :
 				</div>
 
 				<?php if ( '' !== $technopay_sidebar ) : ?>
-					<aside class="sidebar sidebar--single" aria-label="<?php esc_attr_e( 'سایدبار نوشته', 'technopay' ); ?>">
+					<aside class="sidebar sidebar--single<?php echo $technopay_sb['sticky'] ? ' sidebar--has-sticky' : ''; ?>" aria-label="<?php esc_attr_e( 'سایدبار نوشته', 'technopay' ); ?>">
 						<?php echo $technopay_sidebar; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped where it is generated. ?>
 					</aside>
 				<?php endif; ?>

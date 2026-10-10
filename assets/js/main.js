@@ -44,6 +44,27 @@
   onScroll();
   if (toTop) toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
 
+  /* ---------- Sticky sidebar: blocks taller than the screen still scroll to their end ---------- */
+  var stickyBoxes = $$("[data-sticky-sidebar]");
+  if (stickyBoxes.length) {
+    var stackedMq = window.matchMedia("(max-width: 1024px)");
+    var placeSticky = function () {
+      stickyBoxes.forEach(function (box) {
+        if (stackedMq.matches) { box.style.top = ""; return; }
+        var gap = 16;
+        var head = header ? header.getBoundingClientRect().height + (parseFloat(getComputedStyle(header).top) || 0) : 0;
+        box.style.top = Math.min(head + gap, window.innerHeight - box.offsetHeight - gap) + "px";
+      });
+    };
+    placeSticky();
+    window.addEventListener("resize", placeSticky);
+    window.addEventListener("load", placeSticky);
+    if ("ResizeObserver" in window) {
+      var stickyObserver = new ResizeObserver(placeSticky);
+      stickyBoxes.forEach(function (box) { stickyObserver.observe(box); });
+    }
+  }
+
   /* ---------- Mobile drawer ---------- */
   function openDrawer() { body.classList.add("drawer-open"); var c = $(".drawer [data-drawer-close]"); if (c) c.focus(); }
   function closeDrawer() { body.classList.remove("drawer-open"); }

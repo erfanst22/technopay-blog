@@ -212,7 +212,8 @@ function technopay_block_search_hero( $s ) {
 function technopay_block_results( $s, $context ) {
 	$page     = isset( $context['page'] ) && 'search' === $context['page'] ? 'search' : 'archive';
 	$position = technopay_page_option( $page, 'sidebar_position' );
-	$sidebar  = 'none' === $position ? '' : technopay_region_html( $page, 'sidebar', $context );
+	$parts    = 'none' === $position ? array( 'html' => '', 'sticky' => false ) : technopay_sidebar_parts( $page, $context );
+	$sidebar  = $parts['html'];
 	if ( '' === $sidebar ) {
 		$position = 'none';
 	}
@@ -253,7 +254,7 @@ function technopay_block_results( $s, $context ) {
 				<?php endif; ?>
 			</div>
 			<?php if ( '' !== $sidebar ) : ?>
-				<aside class="sidebar" aria-label="<?php esc_attr_e( 'سایدبار', 'technopay' ); ?>">
+				<aside class="sidebar<?php echo $parts['sticky'] ? ' sidebar--has-sticky' : ''; ?>" aria-label="<?php esc_attr_e( 'سایدبار', 'technopay' ); ?>">
 					<?php echo $sidebar; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped where it is generated. ?>
 				</aside>
 			<?php endif; ?>

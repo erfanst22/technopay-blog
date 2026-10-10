@@ -536,6 +536,10 @@ img.avatar { object-fit: cover; background: var(--surface-2); }
    Sidebar widgets
    ========================================================================== */
 .sidebar { display: flex; flex-direction: column; gap: 20px; }
+/* سایدبار چسبان: ناحیهٔ «سایدبار — چسبان» با اسکرول زیر هدر می‌ماند (top دقیق را main.js برای بلوک‌های بلند تنظیم می‌کند). */
+.sidebar--has-sticky { align-self: stretch; }
+.sidebar__sticky { position: sticky; top: calc(var(--header-h) + 16px); display: flex; flex-direction: column; gap: inherit; }
+.admin-bar .sidebar__sticky { top: calc(var(--header-h) + 48px); }
 .widget { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; }
 .widget__title { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 900; margin-bottom: 16px; }
 .widget__title .icon { color: var(--primary); }
@@ -982,6 +986,7 @@ img.avatar { object-fit: cover; background: var(--surface-2); }
   .hero__grid .feature--lg { grid-column: span 2; grid-row: auto; }
   .layout, .layout.layout--sb-right, .post-layout, .post-layout.post-layout--sb-right { grid-template-columns: minmax(0, 1fr); grid-template-areas: "main" "side"; }
   .sidebar--single { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
+  .sidebar__sticky { position: static; display: contents; }
   .posts-grid--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cta { grid-template-columns: 1fr; padding: 32px; }
   .footer__grid { grid-template-columns: 1fr 1fr; }

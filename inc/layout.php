@@ -290,6 +290,13 @@ function technopay_layout_registry() {
 		),
 	);
 
+	// ناحیهٔ چسبان: زیر ابزارک‌های سایدبار می‌آید و با اسکرول صفحه زیر هدر می‌ماند (فقط دسکتاپ).
+	$sidebar_sticky = array(
+		'label'  => 'سایدبار — چسبان',
+		'desc'   => 'این ابزارک‌ها زیر ابزارک‌های بالا قرار می‌گیرند و هنگام اسکرول کنار صفحه می‌مانند (فقط دسکتاپ). برای چسباندن کل سایدبار، همه را اینجا بگذارید.',
+		'blocks' => array_merge( $widgets, array( 'w_widgets_single', 'w_widgets_main' ) ),
+	);
+
 	$pages = array(
 		'home'    => array(
 			'label'   => 'صفحه اصلی',
@@ -318,9 +325,10 @@ function technopay_layout_registry() {
 				),
 				'sidebar' => array(
 					'label'  => 'سایدبار',
-					'desc'   => 'ابزارک‌های کنار مقاله.',
+					'desc'   => 'ابزارک‌های کنار مقاله؛ محاسبه‌گر اقساط، دسته‌ها، بنر و ... را از ستون «غیرفعال» به ستون «فعال» بکشید.',
 					'blocks' => array_merge( $widgets, array( 'w_widgets_single', 'w_widgets_main' ) ),
 				),
+				'sidebar_sticky' => $sidebar_sticky,
 				'bottom'  => array(
 					'label'  => 'پایین صفحه (تمام‌عرض)',
 					'desc'   => 'بعد از مقاله و سایدبار.',
@@ -340,9 +348,10 @@ function technopay_layout_registry() {
 				),
 				'sidebar' => array(
 					'label'  => 'سایدبار',
-					'desc'   => 'ابزارک‌های کنار لیست نوشته‌ها.',
+					'desc'   => 'ابزارک‌های کنار لیست نوشته‌ها؛ محاسبه‌گر اقساط، دسته‌ها، بنر و ... را از ستون «غیرفعال» به ستون «فعال» بکشید.',
 					'blocks' => array_merge( $widgets, array( 'w_widgets_main', 'w_widgets_single' ) ),
 				),
+				'sidebar_sticky' => $sidebar_sticky,
 			),
 			'options' => $sidebar_opts,
 		),
@@ -357,9 +366,10 @@ function technopay_layout_registry() {
 				),
 				'sidebar' => array(
 					'label'  => 'سایدبار',
-					'desc'   => 'ابزارک‌های کنار نتایج.',
+					'desc'   => 'ابزارک‌های کنار نتایج؛ محاسبه‌گر اقساط، دسته‌ها، بنر و ... را از ستون «غیرفعال» به ستون «فعال» بکشید.',
 					'blocks' => array_merge( $widgets, array( 'w_widgets_main', 'w_widgets_single' ) ),
 				),
+				'sidebar_sticky' => $sidebar_sticky,
 			),
 			'options' => $sidebar_opts,
 		),
@@ -608,6 +618,7 @@ function technopay_layout_defaults() {
 				'card'    => technopay_layout_list( array( 's_header', 's_cover', 's_content', 's_footer' ) ),
 				'after'   => technopay_layout_list( $after ),
 				'sidebar' => technopay_layout_list( $single_sidebar ),
+				'sidebar_sticky' => array(),
 				'bottom'  => array(),
 			),
 		),
@@ -616,6 +627,7 @@ function technopay_layout_defaults() {
 			'regions' => array(
 				'main'    => technopay_layout_list( array( 'archive_hero', 'results' ) ),
 				'sidebar' => technopay_layout_list( $archive_sidebar ),
+				'sidebar_sticky' => array(),
 			),
 		),
 		'search'  => array(
@@ -623,6 +635,7 @@ function technopay_layout_defaults() {
 			'regions' => array(
 				'main'    => technopay_layout_list( array( 'search_hero', 'results' ) ),
 				'sidebar' => technopay_layout_list( $archive_sidebar ),
+				'sidebar_sticky' => array(),
 			),
 		),
 		'404'     => array(
@@ -822,6 +835,25 @@ function technopay_region_html( $page_id, $region_id, $context = array() ) {
 	ob_start();
 	technopay_render_region( $page_id, $region_id, $context );
 	return trim( (string) ob_get_clean() );
+}
+
+/**
+ * محتوای سایدبار یک صفحه: ناحیهٔ عادی + ناحیهٔ چسبان (در یک پوشش که با اسکرول همراه می‌آید).
+ *
+ * @param string $page_id شناسه صفحه.
+ * @param array  $context اطلاعات اضافه.
+ * @return array{html:string,sticky:bool} خروجی HTML (خالی = سایدبار نشان داده نشود) و وجود بخش چسبان.
+ */
+function technopay_sidebar_parts( $page_id, $context = array() ) {
+	$html   = technopay_region_html( $page_id, 'sidebar', $context );
+	$sticky = technopay_region_html( $page_id, 'sidebar_sticky', $context );
+	if ( '' !== $sticky ) {
+		$html .= '<div class="sidebar__sticky" data-sticky-sidebar>' . $sticky . '</div>';
+	}
+	return array(
+		'html'   => $html,
+		'sticky' => '' !== $sticky,
+	);
 }
 
 /**
