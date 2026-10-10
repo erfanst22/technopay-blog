@@ -203,7 +203,17 @@ a.badge:hover { filter: brightness(.95); }
 .logo__name { font-size: 20px; font-weight: 900; color: var(--ink); }
 .logo__tag { font-size: 11px; font-weight: 600; color: var(--muted); }
 .custom-logo-link { display: flex; align-items: center; flex: none; }
-.custom-logo { max-height: 48px; width: auto; }
+/* لوگوی آپلودشده (مثلاً تایپوگرافی): فقط خود لوگو؛ ارتفاعش از «سفارشی‌سازی ← هویت سایت» (--logo-h). */
+.custom-logo { display: block; height: var(--logo-h, 40px); width: auto; max-width: 100%; }
+.custom-logo--dark { display: none; }
+:root[data-theme="dark"] .has-dark-logo .custom-logo:not(.custom-logo--dark) { display: none; }
+:root[data-theme="dark"] .has-dark-logo .custom-logo--dark { display: block; }
+:root[data-theme="dark"] .logo-invert-dark .custom-logo { filter: brightness(0) invert(1); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .has-dark-logo .custom-logo:not(.custom-logo--dark) { display: none; }
+  :root:not([data-theme="light"]) .has-dark-logo .custom-logo--dark { display: block; }
+  :root:not([data-theme="light"]) .logo-invert-dark .custom-logo { filter: brightness(0) invert(1); }
+}
 
 .nav { flex: 1; }
 .nav__list { display: flex; align-items: center; gap: 4px; }
@@ -996,6 +1006,7 @@ img.avatar { object-fit: cover; background: var(--surface-2); }
 
 @media (max-width: 768px) {
   :root { --header-h: 64px; }
+  .custom-logo { height: min(var(--logo-h, 40px), 36px); }
   .topbar { display: none; }
   .section { padding-block: 24px; }
   .hero__grid { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-auto-rows: minmax(220px, auto); }

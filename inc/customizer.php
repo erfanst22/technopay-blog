@@ -19,6 +19,9 @@ function technopay_defaults() {
 		'header_cta_text'      => 'دریافت اعتبار',
 		'header_cta_url'       => 'https://technopay.ir',
 		'logo_tagline'         => 'مجله خرید هوشمند',
+		'logo_dark'            => 0,
+		'logo_height'          => 40,
+		'logo_invert_dark'     => false,
 
 		// شبکه‌های اجتماعی.
 		'social_instagram'     => '',
@@ -126,6 +129,25 @@ function technopay_option( $key ) {
  */
 function technopay_sanitize_checkbox( $value ) {
 	return (bool) $value;
+}
+
+/**
+ * ارتفاع لوگوی هدر (پیکسل) بین ۲۴ تا ۷۲.
+ *
+ * @param mixed $value مقدار.
+ * @return int
+ */
+function technopay_sanitize_logo_height( $value ) {
+	return min( 72, max( 24, (int) $value ) );
+}
+
+/**
+ * ارتفاع لوگوی هدر از تنظیمات.
+ *
+ * @return int
+ */
+function technopay_logo_height() {
+	return technopay_sanitize_logo_height( technopay_option( 'logo_height' ) );
 }
 
 /**
@@ -325,5 +347,65 @@ function technopay_customize_register( $wp_customize ) {
 		}
 		$wp_customize->add_control( $key, $control );
 	}
+
+	// لوگو: خود لوگو را وردپرس در «هویت سایت» می‌گیرد؛ اینجا نسخهٔ حالت تاریک و اندازه را اضافه می‌کنیم.
+	$wp_customize->add_setting(
+		'logo_dark',
+		array(
+			'default'           => 0,
+			'sanitize_callback' => 'absint',
+		)
+	);
+	$wp_customize->add_control(
+		new WP_Customize_Media_Control(
+			$wp_customize,
+			'logo_dark',
+			array(
+				'label'       => __( 'لوگوی حالت تاریک (اختیاری)', 'technopay' ),
+				'description' => __( 'نسخه‌ای از لوگو که روی زمینهٔ تیره خوانا باشد (مثلاً سفید). پیشنهاد: PNG یا WebP با پس‌زمینهٔ شفاف.', 'technopay' ),
+				'section'     => 'title_tagline',
+				'mime_type'   => 'image',
+				'priority'    => 9,
+			)
+		)
+	);
+	$wp_customize->add_setting(
+		'logo_invert_dark',
+		array(
+			'default'           => false,
+			'sanitize_callback' => 'technopay_sanitize_checkbox',
+		)
+	);
+	$wp_customize->add_control(
+		'logo_invert_dark',
+		array(
+			'label'       => __( 'اگر لوگوی حالت تاریک ندارید: لوگو در حالت تاریک سفید شود', 'technopay' ),
+			'description' => __( 'مناسب لوگوی تک‌رنگ؛ برای لوگوی رنگی بهتر است نسخهٔ جداگانه بالا را بگذارید.', 'technopay' ),
+			'section'     => 'title_tagline',
+			'type'        => 'checkbox',
+			'priority'    => 9,
+		)
+	);
+	$wp_customize->add_setting(
+		'logo_height',
+		array(
+			'default'           => 40,
+			'sanitize_callback' => 'technopay_sanitize_logo_height',
+		)
+	);
+	$wp_customize->add_control(
+		'logo_height',
+		array(
+			'label'       => __( 'ارتفاع لوگو در هدر (پیکسل)', 'technopay' ),
+			'section'     => 'title_tagline',
+			'type'        => 'range',
+			'input_attrs' => array(
+				'min'  => 24,
+				'max'  => 72,
+				'step' => 2,
+			),
+			'priority'    => 9,
+		)
+	);
 }
 add_action( 'customize_register', 'technopay_customize_register' );

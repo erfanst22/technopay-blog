@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TECHNOPAY_VERSION', '1.3.1' );
+define( 'TECHNOPAY_VERSION', '1.3.2' );
 define( 'TECHNOPAY_DIR', get_template_directory() );
 define( 'TECHNOPAY_URI', get_template_directory_uri() );
 
@@ -115,6 +115,7 @@ add_action( 'after_setup_theme', 'technopay_content_width', 0 );
  */
 function technopay_assets() {
 	wp_enqueue_style( 'technopay-main', TECHNOPAY_URI . '/assets/css/main.css', array(), TECHNOPAY_VERSION );
+	wp_add_inline_style( 'technopay-main', ':root{--logo-h:' . technopay_logo_height() . 'px}' );
 	wp_enqueue_script(
 		'technopay-main',
 		TECHNOPAY_URI . '/assets/js/main.js',
