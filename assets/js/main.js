@@ -1,4 +1,4 @@
-/* TechnoPay Mag — اسکریپت‌های قالب (بدون وابستگی به jQuery) */
+/* TechnoPay Blog — اسکریپت‌های قالب (بدون وابستگی به jQuery) */
 (function () {
   "use strict";
 

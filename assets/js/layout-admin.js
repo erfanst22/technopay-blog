@@ -1,4 +1,4 @@
-/* TechnoPay Mag — چیدمان صفحات (کشیدن و رها کردن). وابسته به SortableJS (MIT)، بدون jQuery. */
+/* TechnoPay Blog — چیدمان صفحات (کشیدن و رها کردن). وابسته به SortableJS (MIT)، بدون jQuery. */
 (function () {
   'use strict';
 
