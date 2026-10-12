@@ -16,6 +16,7 @@ function technopay_defaults() {
 	return array(
 		// رنگ.
 		'brand_color'          => '#00b7ce',
+		'button_text'          => 'white',
 
 		// هدر.
 		'topbar_enabled'       => true,
@@ -372,6 +373,29 @@ function technopay_customize_register( $wp_customize ) {
 				'description' => __( 'رنگ دکمه‌ها، نشان‌ها و المان‌های رنگی. رنگ متن روی دکمه‌ها، لینک‌ها و حالت تاریک خودکار و با کنتراست خوانا ساخته می‌شود. پیش‌فرض: #00b7ce', 'technopay' ),
 				'section'     => 'technopay_colors',
 			)
+		)
+	);
+
+	$wp_customize->add_setting(
+		'button_text',
+		array(
+			'default'           => 'white',
+			'sanitize_callback' => static function ( $value ) {
+				return 'auto' === $value ? 'auto' : 'white';
+			},
+		)
+	);
+	$wp_customize->add_control(
+		'button_text',
+		array(
+			'label'       => __( 'رنگ متن روی دکمه‌ها و نشان‌ها', 'technopay' ),
+			'description' => __( 'روی رنگ‌های روشن مثل فیروزه‌ای، متن سفید کم‌کنتراست است؛ «خودکار» در این حالت متن را سرمه‌ای می‌کند.', 'technopay' ),
+			'section'     => 'technopay_colors',
+			'type'        => 'select',
+			'choices'     => array(
+				'white' => __( 'سفید', 'technopay' ),
+				'auto'  => __( 'خودکار (خواناترین: سفید یا سرمه‌ای)', 'technopay' ),
+			),
 		)
 	);
 

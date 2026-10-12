@@ -32,6 +32,15 @@ function technopay_sanitize_brand_color( $value ) {
 }
 
 /**
+ * رنگ متن روی دکمه‌ها و نشان‌های رنگ برند: white (سفید، پیش‌فرض) یا auto (سفید/سرمه‌ای، هر کدام که خواناتر است).
+ *
+ * @return string
+ */
+function technopay_button_text_mode() {
+	return 'auto' === technopay_option( 'button_text' ) ? 'auto' : 'white';
+}
+
+/**
  * رنگ برند فعلی.
  *
  * @return string
@@ -196,17 +205,21 @@ function technopay_shift_until( array $rgb, array $on, $min_ratio, $dir ) {
 /**
  * رنگ‌های ساخته‌شده از رنگ برند برای حالت روشن و تاریک.
  *
- * @param string $hex رنگ برند.
+ * @param string $hex       رنگ برند.
+ * @param string $text_mode white = متن روی رنگ برند همیشه سفید؛ auto = سفید یا سرمه‌ای (خواناتر).
  * @return array{light:array,dark:array}
  */
-function technopay_brand_tokens( $hex ) {
+function technopay_brand_tokens( $hex, $text_mode = 'white' ) {
 	$brand = technopay_hex_to_rgb( technopay_sanitize_brand_color( $hex ) );
 	$white = array( 255, 255, 255 );
 	$ink   = array( 15, 23, 42 ); // --ink
 	$surf  = array( 17, 26, 46 ); // --surface (تاریک)
 	$surf2 = array( 15, 23, 41 ); // --surface-2 (تاریک)
 
-	$on_color = static function ( array $bg ) use ( $white, $ink ) {
+	$on_color = static function ( array $bg ) use ( $white, $ink, $text_mode ) {
+		if ( 'auto' !== $text_mode ) {
+			return $white;
+		}
 		return technopay_contrast( $white, $bg ) >= technopay_contrast( $ink, $bg ) ? $white : $ink;
 	};
 	$shift_l  = static function ( array $rgb, $delta ) {
@@ -247,9 +260,17 @@ function technopay_brand_tokens( $hex ) {
 		'primary-solid' => $brand_d,
 	);
 
+	$light = array_map( 'technopay_rgb_to_hex', $light );
+	$dark  = array_map( 'technopay_rgb_to_hex', $dark );
+
+	// سایهٔ ظریف زیر متن سفید روی رنگ برند برای خوانایی بیشتر؛ برای متن تیره لازم نیست.
+	$shadow = '0 1px 1px rgba(0,0,0,.22)';
+	$light['on-primary-shadow'] = '#ffffff' === $light['on-primary'] ? $shadow : 'none';
+	$dark['on-primary-shadow']  = '#ffffff' === $dark['on-primary'] ? $shadow : 'none';
+
 	return array(
-		'light' => array_map( 'technopay_rgb_to_hex', $light ),
-		'dark'  => array_map( 'technopay_rgb_to_hex', $dark ),
+		'light' => $light,
+		'dark'  => $dark,
 	);
 }
 
@@ -268,16 +289,17 @@ function technopay_brand_vars( array $tokens ) {
 }
 
 /**
- * CSS رنگ برند؛ اگر رنگ همان پیش‌فرض باشد خالی است (مقدارهای main.css از همان ساخته شده‌اند).
+ * CSS رنگ برند؛ اگر رنگ و حالت متن همان پیش‌فرض باشند خالی است (مقدارهای main.css از همان ساخته شده‌اند).
  *
  * @return string
  */
 function technopay_brand_css() {
 	$brand = technopay_brand_color();
-	if ( technopay_default_brand() === $brand ) {
+	$mode  = technopay_button_text_mode();
+	if ( technopay_default_brand() === $brand && 'white' === $mode ) {
 		return '';
 	}
-	$t = technopay_brand_tokens( $brand );
+	$t = technopay_brand_tokens( $brand, $mode );
 	return ':root{' . technopay_brand_vars( $t['light'] ) . '}'
 		. ':root[data-theme="dark"]{' . technopay_brand_vars( $t['dark'] ) . '}'
 		. '@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){' . technopay_brand_vars( $t['dark'] ) . '}}';
