@@ -480,7 +480,7 @@
       });
     }
     pane.appendChild(el("p", { class: "tpb-note" }, [
-      "چیدمان به‌صورت لیست: ", el("a", { href: cfg.urls.list, text: "چیدمان لیستی" }), " · ", el("a", { href: cfg.urls.hub, text: "صفحهٔ مجله تکنوپی" })
+      "چیدمان به‌صورت لیست: ", el("a", { href: cfg.urls.list, text: "چیدمان لیستی" }), " · ", el("a", { href: cfg.urls.settings, text: "تنظیمات و کد تگ منیجر" }), " · ", el("a", { href: cfg.urls.hub, text: "صفحهٔ مجله تکنوپی" })
     ]));
   }
 

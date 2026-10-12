@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TECHNOPAY_VERSION', '1.5.0' );
+define( 'TECHNOPAY_VERSION', '1.5.1' );
 define( 'TECHNOPAY_DIR', get_template_directory() );
 define( 'TECHNOPAY_URI', get_template_directory_uri() );
 
@@ -24,6 +24,7 @@ require TECHNOPAY_DIR . '/inc/layout.php';
 require TECHNOPAY_DIR . '/inc/layout-blocks.php';
 require TECHNOPAY_DIR . '/inc/editor.php';
 require TECHNOPAY_DIR . '/inc/layout-admin.php';
+require TECHNOPAY_DIR . '/inc/settings.php';
 require TECHNOPAY_DIR . '/inc/hub.php';
 
 /**

@@ -501,6 +501,7 @@ function technopay_editor_config() {
 			'preview' => technopay_editor_link( $current, 'preview' ),
 			'hub'     => admin_url( 'admin.php?page=technopay' ),
 			'list'    => admin_url( 'admin.php?page=' . TECHNOPAY_LAYOUT_PAGE ),
+			'settings' => admin_url( 'admin.php?page=' . TECHNOPAY_SETTINGS_PAGE ),
 		),
 	);
 }

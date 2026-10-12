@@ -32,6 +32,14 @@ function technopay_hub_menu() {
 	);
 	add_submenu_page(
 		TECHNOPAY_HUB_PAGE,
+		__( 'تنظیمات', 'technopay' ),
+		__( 'تنظیمات', 'technopay' ),
+		'edit_theme_options',
+		TECHNOPAY_SETTINGS_PAGE,
+		'technopay_settings_page'
+	);
+	add_submenu_page(
+		TECHNOPAY_HUB_PAGE,
 		__( 'چیدمان لیستی', 'technopay' ),
 		__( 'چیدمان لیستی', 'technopay' ),
 		'edit_theme_options',
@@ -152,6 +160,7 @@ function technopay_hub_page() {
 		<h2><?php esc_html_e( 'ابزارهای دیگر', 'technopay' ); ?></h2>
 		<p>
 			<a class="button" href="<?php echo esc_url( admin_url( 'customize.php?autofocus[panel]=technopay' ) ); ?>"><?php esc_html_e( 'سفارشی‌سازی (لوگو، منوها، متن‌ها، لینک‌ها)', 'technopay' ); ?></a>
+			<a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=' . TECHNOPAY_SETTINGS_PAGE ) ); ?>"><?php esc_html_e( 'تنظیمات (تگ منیجر گوگل و کدهای سفارشی)', 'technopay' ); ?></a>
 			<a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=' . TECHNOPAY_LAYOUT_PAGE ) ); ?>"><?php esc_html_e( 'چیدمان لیستی (بدون ویرایشگر بصری)', 'technopay' ); ?></a>
 		</p>
 	</div>
