@@ -15,6 +15,8 @@
   var btnMode = cfg.style.btn;
   var dirty = !!cfg.dirty;
   var selected = null;
+  var changed = false;       // تغییری که هنوز در پیش‌نویس ذخیره نشده
+  var styleChanged = {};     // فقط کلیدهای سبکی که همین جلسه عوض شده‌اند (تا تنظیمات سفارشی‌سازی را زیر پا نگذاریم)
   var addTarget = "";
   var saveTimer = 0;
   var pending = Promise.resolve();
@@ -84,9 +86,9 @@
 
   function styleSnapshot() {
     var s = {};
-    Object.keys(cfg.style.schema).forEach(function (k) { s[k] = styleVals[k]; });
-    s.brand_color = brand;
-    s.button_text = btnMode;
+    Object.keys(cfg.style.schema).forEach(function (k) { if (styleChanged[k]) s[k] = styleVals[k]; });
+    if (styleChanged.brand_color) s.brand_color = brand;
+    if (styleChanged.button_text) s.button_text = btnMode;
     return s;
   }
 
@@ -97,26 +99,48 @@
     s.setAttribute("data-kind", kind || "");
   }
 
+  function draftPayload() {
+    return { page: page, data: JSON.stringify(collect()), style: JSON.stringify(styleSnapshot()) };
+  }
+
   function saveDraft() {
     clearTimeout(saveTimer);
+    if (!changed) return pending; // چیزی عوض نشده: پیش‌نویس تازه ساخته نمی‌شود
+    changed = false;
     setStatus(T.saving, "busy");
     pending = pending.then(function () {
-      return post("tpb_save_draft", { page: page, data: JSON.stringify(collect()), style: JSON.stringify(styleSnapshot()) });
+      return post("tpb_save_draft", draftPayload());
     }).then(function (res) {
       if (!res || !res.success) throw new Error("save");
-      dirty = true;
+      dirty = !!(res.data && res.data.dirty);
       refreshDirty();
       setStatus(T.saved, "ok");
-    }).catch(function () { setStatus(T.failed, "err"); });
+    }).catch(function () { changed = true; setStatus(T.failed, "err"); });
     return pending;
   }
   function scheduleSave() {
+    changed = true;
     dirty = true;
     refreshDirty();
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(saveDraft, 500);
+    saveTimer = setTimeout(saveDraft, 350);
   }
   function flush() { clearTimeout(saveTimer); return saveDraft(); }
+
+  // بستن تب یا رفرش درست بعد از یک تغییر: با sendBeacon در پیش‌نویس ذخیره می‌شود
+  function beaconSave() {
+    if (!changed) return;
+    try {
+      var fd = new FormData();
+      fd.append("action", "tpb_save_draft");
+      fd.append("nonce", cfg.nonce);
+      var d = draftPayload();
+      Object.keys(d).forEach(function (k) { fd.append(k, d[k]); });
+      if (navigator.sendBeacon(cfg.ajax, fd)) changed = false;
+    } catch (e) { /* ignore */ }
+  }
+  window.addEventListener("beforeunload", beaconSave);
+  window.addEventListener("pagehide", beaconSave);
 
   function reloadPage() {
     var state = { y: window.scrollY, tab: currentTab };
@@ -129,6 +153,7 @@
   }
 
   function commit(reload) {
+    changed = true;
     toggleEmpty();
     if (reload) { reloadPage(); } else { scheduleSave(); }
   }
@@ -203,7 +228,7 @@
       flush().then(function () { window.open(cfg.urls.preview, "_blank", "noopener"); });
     } else if (act === "publish") {
       flush().then(function () { return post("tpb_publish"); }).then(function (res) {
-        if (res && res.success) { dirty = false; setStatus(T.published, "ok"); refreshDirty(); } else { setStatus(T.failed, "err"); }
+        if (res && res.success) { dirty = false; changed = false; styleChanged = {}; setStatus(T.published, "ok"); refreshDirty(); } else { setStatus(T.failed, "err"); }
       }).catch(function () { setStatus(T.failed, "err"); });
     } else if (act === "discard") {
       if (confirm("همهٔ تغییرات منتشرنشده دور انداخته شود؟")) {
@@ -260,8 +285,12 @@
     applyPaletteFilter();
   }
 
+  function regionPresent(r) {
+    return regionsOnPage().some(function (el) { return el.getAttribute("data-tpb-region") === r; });
+  }
   function regionsFor(blockId) {
-    return Object.keys(cfg.regions).filter(function (r) { return allowedIn(r, blockId); });
+    // فقط ناحیه‌هایی که الان روی صفحه چاپ شده‌اند (مثلاً با «بدون سایدبار» ناحیهٔ سایدبار نیست)
+    return Object.keys(cfg.regions).filter(function (r) { return allowedIn(r, blockId) && regionPresent(r); });
   }
 
   function setAddTarget(regionId) {
@@ -349,7 +378,7 @@
     var defs = d.settings || {};
     var keys = Object.keys(defs);
     if (!keys.length) pane.appendChild(el("p", { class: "tpb-note", text: "این عنصر تنظیم اضافه‌ای ندارد." }));
-    keys.forEach(function (k) { pane.appendChild(fieldFor(defs[k], settings[uid][k], function (v, immediate) { settings[uid][k] = v; if (immediate) commit(true); else debouncedReload(); })); });
+    keys.forEach(function (k) { pane.appendChild(fieldFor(defs[k], settings[uid][k], function (v, immediate) { settings[uid][k] = v; if (immediate) commit(true); })); });
 
     // انتقال به ناحیهٔ دیگر
     var cur = regionOf(block).getAttribute("data-tpb-region");
@@ -369,9 +398,6 @@
     row.addEventListener("click", function (e) { if (e.target.closest("[data-edit-remove]")) removeBlock(block); });
     pane.appendChild(row);
   }
-
-  var reloadTimer = 0;
-  function debouncedReload() { clearTimeout(reloadTimer); reloadTimer = setTimeout(function () { commit(true); }, 750); }
 
   function fieldFor(def, value, onChange) {
     var label = el("span", { text: def.label });
@@ -396,6 +422,7 @@
     } else {
       input = el("input", { type: "text", class: "tpb-input", maxlength: 80, value: value == null ? "" : value });
       input.addEventListener("input", function () { onChange(input.value, false); });
+      input.addEventListener("change", function () { onChange(input.value, true); }); // با Enter یا خارج شدن از کادر اعمال می‌شود
     }
     return el("label", { class: "tpb-field" }, [label, input]);
   }
@@ -412,6 +439,7 @@
       inp.addEventListener("input", function () {
         var v = parseInt(inp.value, 10);
         styleVals[k] = v;
+        styleChanged[k] = true;
         out.textContent = v + d.unit;
         applyStyle(k, v);
         scheduleSave();
@@ -426,6 +454,7 @@
     var applyBrand = function (v) {
       if (!/^#[0-9a-fA-F]{6}$/.test(v)) return;
       brand = v.toLowerCase();
+      styleChanged.brand_color = true;
       color.value = brand; hex.value = brand;
       brandPreview();
       scheduleSave();
@@ -436,7 +465,7 @@
 
     var mode = el("select", { class: "tpb-input" }, [el("option", { value: "white", text: "سفید" }), el("option", { value: "auto", text: "خودکار (سفید یا سرمه‌ای، هر کدام خواناتر)" })]);
     mode.value = btnMode;
-    mode.addEventListener("change", function () { btnMode = mode.value; brandPreview(); scheduleSave(); });
+    mode.addEventListener("change", function () { btnMode = mode.value; styleChanged.button_text = true; styleChanged.brand_color = true; brandPreview(); scheduleSave(); });
     pane.appendChild(el("label", { class: "tpb-field" }, [el("span", { text: "رنگ متن روی دکمه‌ها" }), mode]));
   }
 
@@ -445,6 +474,7 @@
     if (k === "fs_scale") root.setProperty("--fs-global", String(v / 100));
     else if (k === "fs_article") root.setProperty("--fs-article", String(v / 100));
     else if (k === "container_w") root.setProperty("--container", v + "px");
+    window.dispatchEvent(new Event("resize")); // منوی هدر دوباره اندازه‌گیری شود
   }
 
   var brandSeq = 0;

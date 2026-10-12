@@ -216,11 +216,14 @@ function technopay_brand_tokens( $hex, $text_mode = 'white' ) {
 	$surf  = array( 17, 26, 46 ); // --surface (تاریک)
 	$surf2 = array( 15, 23, 41 ); // --surface-2 (تاریک)
 
-	$on_color = static function ( array $bg ) use ( $white, $ink, $text_mode ) {
+	// متن روی رنگ برند (و روی گرادیان رنگ برند ← هاور): بدترین کنتراست بین دو سر ملاک است.
+	$on_color = static function ( array $bg, array $bg2 ) use ( $white, $ink, $text_mode ) {
 		if ( 'auto' !== $text_mode ) {
 			return $white;
 		}
-		return technopay_contrast( $white, $bg ) >= technopay_contrast( $ink, $bg ) ? $white : $ink;
+		$w = min( technopay_contrast( $white, $bg ), technopay_contrast( $white, $bg2 ) );
+		$i = min( technopay_contrast( $ink, $bg ), technopay_contrast( $ink, $bg2 ) );
+		return $w >= $i ? $white : $ink;
 	};
 	$shift_l  = static function ( array $rgb, $delta ) {
 		$h = technopay_rgb_to_hsl( $rgb );
@@ -240,7 +243,7 @@ function technopay_brand_tokens( $hex, $text_mode = 'white' ) {
 		'primary-ink'   => $ink_l,
 		'primary-deep'  => $deep,
 		'primary-deeper' => $shift_l( $deep, -0.11 ),
-		'on-primary'    => $on_color( $brand ),
+		'on-primary'    => $on_color( $brand, $shift_l( $brand, -0.07 ) ),
 		'primary-solid' => $brand,
 	);
 
@@ -256,7 +259,7 @@ function technopay_brand_tokens( $hex, $text_mode = 'white' ) {
 		'primary-ink'   => technopay_shift_until( $brand_d, array( $surf, $surf2, $p50_d, $p100_d ), 4.6, 1 ),
 		'primary-deep'  => $deep,
 		'primary-deeper' => $light['primary-deeper'],
-		'on-primary'    => $on_color( $brand_d ),
+		'on-primary'    => $on_color( $brand_d, $shift_l( $brand_d, 0.06 ) ),
 		'primary-solid' => $brand_d,
 	);
 

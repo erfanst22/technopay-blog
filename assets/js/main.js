@@ -44,6 +44,23 @@
   onScroll();
   if (toTop) toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
 
+  /* ---------- Header: when the menu no longer fits (big font / narrow container) use the drawer menu ---------- */
+  (function () {
+    var nav = $(".site-header .nav"), inner = $(".header__inner");
+    if (!nav || !inner) return;
+    var timer = 0;
+    function fit() {
+      root.classList.remove("nav-compact");
+      if (getComputedStyle(nav).display === "none") return;
+      if (nav.scrollWidth > nav.clientWidth + 1 || nav.offsetHeight > inner.clientHeight - 6) root.classList.add("nav-compact");
+    }
+    function later() { clearTimeout(timer); timer = setTimeout(fit, 80); }
+    fit();
+    window.addEventListener("resize", later);
+    window.addEventListener("load", fit);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  })();
+
   /* ---------- Sticky sidebar: blocks taller than the screen still scroll to their end ---------- */
   var stickyBoxes = $$("[data-sticky-sidebar]");
   if (stickyBoxes.length) {

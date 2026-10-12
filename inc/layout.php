@@ -465,7 +465,7 @@ function technopay_layout_sanitize_value( $field, $value ) {
 			return min( $max, max( $min, is_numeric( $value ) ? (int) $value : (int) $default ) );
 		case 'select':
 			$options = isset( $field['options'] ) ? array_keys( $field['options'] ) : array();
-			return in_array( (string) $value, array_map( 'strval', $options ), true ) ? (string) $value : $default;
+			return is_scalar( $value ) && in_array( (string) $value, array_map( 'strval', $options ), true ) ? (string) $value : $default;
 		case 'category':
 			$id = is_numeric( $value ) ? (int) $value : 0; // منفی و نامعتبر = خودکار (absint عدد منفی را مثبت می‌کرد).
 			return ( $id > 0 && term_exists( $id, 'category' ) ) ? $id : 0;
@@ -502,7 +502,7 @@ function technopay_layout_normalize_page( $page_id, $data, $default ) {
 		$list  = array();
 		$seen  = array();
 		foreach ( $items as $item ) {
-			$id = is_array( $item ) && isset( $item['id'] ) ? (string) $item['id'] : '';
+			$id = is_array( $item ) && isset( $item['id'] ) && is_scalar( $item['id'] ) ? (string) $item['id'] : '';
 			if ( '' === $id || isset( $seen[ $id ] ) || ! in_array( $id, $region['blocks'], true ) || ! isset( $registry['blocks'][ $id ] ) ) {
 				continue;
 			}
@@ -703,7 +703,9 @@ function technopay_layout_get( $refresh = false ) {
 	$saved    = get_option( TECHNOPAY_LAYOUT_OPTION, array() );
 	$saved    = is_array( $saved ) && isset( $saved['pages'] ) && is_array( $saved['pages'] ) ? $saved['pages'] : array();
 	if ( function_exists( 'technopay_editor_state' ) && technopay_editor_state() ) {
-		$saved = array_merge( $saved, technopay_draft_pages() ); // پیش‌نویس ویرایشگر بصری (فقط برای خود مدیر).
+		foreach ( technopay_draft_pages() as $draft_page_id => $draft_page ) { // پیش‌نویس ویرایشگر بصری (فقط برای خود مدیر)؛ array_merge کلید عددی «404» را عوض می‌کرد.
+			$saved[ $draft_page_id ] = $draft_page;
+		}
 	}
 	$defaults = technopay_layout_defaults();
 	$registry = technopay_layout_registry();

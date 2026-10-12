@@ -61,6 +61,7 @@ function technopay_hub_legacy_redirect() {
 				$args[ sanitize_key( $key ) ] = sanitize_text_field( (string) $value );
 			}
 		}
+		$args['page'] = TECHNOPAY_LAYOUT_PAGE; // حتی اگر PAGE با حروف بزرگ هم آمده باشد، مقصد ثابت است.
 		wp_safe_redirect( add_query_arg( $args, admin_url( 'admin.php' ) ) );
 		exit;
 	}

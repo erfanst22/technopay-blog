@@ -14,6 +14,15 @@ defined( 'ABSPATH' ) || exit;
 
 const TECHNOPAY_DRAFT_META = '_technopay_visual_draft';
 
+/**
+ * کلید متای پیش‌نویس؛ در چندسایتی هر سایت پیش‌نویس جدا دارد (متای کاربر سراسری است).
+ *
+ * @return string
+ */
+function technopay_draft_meta_key() {
+	return TECHNOPAY_DRAFT_META . '_' . get_current_blog_id();
+}
+
 /* ==========================================================================
    وضعیت ویرایشگر
    ========================================================================== */
@@ -62,7 +71,7 @@ function technopay_is_editing() {
 function technopay_draft_get( $refresh = false ) {
 	static $draft = null;
 	if ( null === $draft || $refresh ) {
-		$raw   = get_user_meta( get_current_user_id(), TECHNOPAY_DRAFT_META, true );
+		$raw   = get_user_meta( get_current_user_id(), technopay_draft_meta_key(), true );
 		$draft = array(
 			'pages' => is_array( $raw ) && isset( $raw['pages'] ) && is_array( $raw['pages'] ) ? $raw['pages'] : array(),
 			'style' => is_array( $raw ) && isset( $raw['style'] ) && is_array( $raw['style'] ) ? $raw['style'] : array(),
@@ -94,7 +103,7 @@ function technopay_draft_save( array $pages, array $style ) {
 	}
 	update_user_meta(
 		get_current_user_id(),
-		TECHNOPAY_DRAFT_META,
+		technopay_draft_meta_key(),
 		array(
 			'pages' => $pages,
 			'style' => $style,
@@ -109,7 +118,7 @@ function technopay_draft_save( array $pages, array $style ) {
  * @param int $user_id شناسهٔ کاربر (۰ = کاربر فعلی).
  */
 function technopay_draft_clear( $user_id = 0 ) {
-	delete_user_meta( $user_id ? $user_id : get_current_user_id(), TECHNOPAY_DRAFT_META );
+	delete_user_meta( $user_id ? $user_id : get_current_user_id(), technopay_draft_meta_key() );
 	technopay_draft_get( true );
 }
 
@@ -124,14 +133,22 @@ function technopay_draft_dirty() {
 }
 
 /**
- * با ذخیره/بازنشانی چیدمان از صفحهٔ لیستی، پیش‌نویس کهنه کنار گذاشته می‌شود.
+ * با ذخیره/بازنشانی چیدمان از صفحهٔ لیستی (یا تعویض قالب)، پیش‌نویس همهٔ مدیرها کنار گذاشته می‌شود.
  */
 function technopay_draft_clear_all_users() {
-	global $wpdb;
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- حذف متای همهٔ مدیرها در یک کوئری.
-	$wpdb->delete( $wpdb->usermeta, array( 'meta_key' => TECHNOPAY_DRAFT_META ) ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+	$ids = get_users(
+		array(
+			'meta_key' => technopay_draft_meta_key(), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			'fields'   => 'ID',
+			'number'   => 500,
+		)
+	);
+	foreach ( $ids as $user_id ) {
+		delete_user_meta( (int) $user_id, technopay_draft_meta_key() ); // کش متا هم درست پاک می‌شود.
+	}
 	technopay_draft_get( true );
 }
+add_action( 'switch_theme', 'technopay_draft_clear_all_users' );
 
 /* ==========================================================================
    سبک کلی سایت (اندازهٔ فونت، عرض محتوا، رنگ)
@@ -233,6 +250,7 @@ function technopay_editor_boot() {
 		return;
 	}
 	nocache_headers();
+	send_frame_options_header(); // جلوگیری از قرار گرفتن صفحهٔ ویرایش داخل iframe سایت دیگر.
 	if ( technopay_is_editing() ) {
 		add_filter( 'show_admin_bar', '__return_false' );
 	}
@@ -456,7 +474,7 @@ function technopay_editor_config() {
 	$targets = array();
 	foreach ( technopay_editor_targets() as $id => $t ) {
 		$targets[] = array(
-			'id'    => $id,
+			'id'    => (string) $id, // کلید «404» در PHP عدد می‌شود.
 			'label' => $t['label'],
 			'hint'  => $t['hint'],
 			'url'   => '' === $t['url'] ? '' : technopay_editor_link( $t['url'] ),
@@ -580,6 +598,13 @@ function technopay_editor_ajax_save_draft() {
 
 	$data = technopay_editor_ajax_json( 'data' );
 	if ( $data && isset( $registry['pages'][ $page ] ) ) {
+		// فقط ناحیه‌هایی که کلاینت فرستاده جایگزین می‌شوند؛ ناحیهٔ نمایش‌داده‌نشده (مثلاً سایدبار در حالت «بدون سایدبار») حفظ می‌شود.
+		$base = isset( $draft['pages'][ $page ] ) ? $draft['pages'][ $page ] : technopay_layout_get()[ $page ];
+		$sent = isset( $data['regions'] ) && is_array( $data['regions'] ) ? $data['regions'] : array();
+		$data = array(
+			'options' => array_merge( isset( $base['options'] ) ? (array) $base['options'] : array(), isset( $data['options'] ) && is_array( $data['options'] ) ? $data['options'] : array() ),
+			'regions' => array_merge( isset( $base['regions'] ) ? (array) $base['regions'] : array(), $sent ),
+		);
 		$clean = technopay_layout_sanitize( array( 'pages' => array( $page => $data ) ) );
 		if ( isset( $clean['pages'][ $page ] ) ) {
 			$draft['pages'][ $page ] = $clean['pages'][ $page ];
