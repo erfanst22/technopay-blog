@@ -10,7 +10,7 @@ body {
   color: #334155;
 }
 h1, h2, h3, h4 { color: #0f172a; font-weight: 800; line-height: 1.6; }
-a { color: #2b59ff; }
+a { color: #007382; }
 
 .callout { position: relative; padding: 18px 20px; padding-inline-start: 58px; border-radius: 18px; border: 1px solid; font-size: 15px; line-height: 2; color: #0f172a; }
 .callout p { margin: 0; }
@@ -20,11 +20,11 @@ a { color: #2b59ff; }
 .callout--tip::before { background: #12b76a; }
 .callout--warn::before { background: #d97706; }
 
-.tp-cta { padding: 24px 26px; border-radius: 22px; color: #fff; background: linear-gradient(135deg, #2b59ff, #5b3df5); }
+.tp-cta { padding: 24px 26px; border-radius: 22px; color: #fff; background: linear-gradient(135deg, #00363d, #006875); }
 .tp-cta p, .tp-cta strong { color: #fff; margin: 0 0 10px; }
 .tp-cta__title { font-size: 19px; font-weight: 900; }
 .tp-cta .wp-block-button__link { background: #fff; color: #1d43d8; border-radius: 12px; font-weight: 700; }
 
 .wp-block-details { border: 1px solid #e5e9f2; border-radius: 16px; background: #f8fafc; padding: 12px 18px; }
 .wp-block-details summary { font-weight: 700; color: #0f172a; cursor: pointer; }
-.wp-block-quote { background: #eef2ff; border-inline-start: 5px solid #2b59ff; border-radius: 20px; padding: 18px 24px; font-weight: 600; }
+.wp-block-quote { background: #e6f8fa; border-inline-start: 5px solid #00b7ce; border-radius: 20px; padding: 18px 24px; font-weight: 600; }

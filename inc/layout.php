@@ -725,6 +725,17 @@ function technopay_layout_save( array $sanitized ) {
 }
 
 /**
+ * آیا چیدمان این صفحه در «چیدمان صفحات» ذخیره شده است؟ (وگرنه پیش‌فرض‌ها و گزینه‌های سفارشی‌سازی اعمال می‌شوند.)
+ *
+ * @param string $page_id شناسه صفحه.
+ * @return bool
+ */
+function technopay_layout_page_saved( $page_id ) {
+	$saved = get_option( TECHNOPAY_LAYOUT_OPTION, array() );
+	return is_array( $saved ) && isset( $saved['pages'][ $page_id ] );
+}
+
+/**
  * بازگرداندن یک صفحه به حالت پیش‌فرض.
  *
  * @param string $page_id شناسه صفحه.

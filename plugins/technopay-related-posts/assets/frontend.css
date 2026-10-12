@@ -1,7 +1,8 @@
 /* TechnoPay Smart Related Posts — باکس «بیشتر بخوانید» داخل مقاله.
    از متغیرهای رنگ قالب (اگر باشند) استفاده می‌کند و در غیر این صورت مقدار پیش‌فرض دارد. */
 .tprp-box {
-	--tprp-primary: var(--primary, #2b59ff);
+	--tprp-accent: var(--primary, #00b7ce);
+	--tprp-primary: var(--primary-ink, #007382);
 	--tprp-bg: var(--surface-2, #f8fafc);
 	--tprp-border: var(--border, #e5e9f2);
 	--tprp-ink: var(--ink, #0f172a);
@@ -12,7 +13,7 @@
 	text-align: start;
 	background: var(--tprp-bg);
 	border: 1px solid var(--tprp-border);
-	border-inline-start: 4px solid var(--tprp-primary);
+	border-inline-start: 4px solid var(--tprp-accent);
 	border-radius: 14px;
 	line-height: 1.8;
 	font-size: 15px;

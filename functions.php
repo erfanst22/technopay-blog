@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TECHNOPAY_VERSION', '1.3.2' );
+define( 'TECHNOPAY_VERSION', '1.4.0' );
 define( 'TECHNOPAY_DIR', get_template_directory() );
 define( 'TECHNOPAY_URI', get_template_directory_uri() );
 
@@ -15,6 +15,7 @@ require TECHNOPAY_DIR . '/inc/helpers.php';
 require TECHNOPAY_DIR . '/inc/template-tags.php';
 require TECHNOPAY_DIR . '/inc/menus.php';
 require TECHNOPAY_DIR . '/inc/customizer.php';
+require TECHNOPAY_DIR . '/inc/colors.php';
 require TECHNOPAY_DIR . '/inc/widgets.php';
 require TECHNOPAY_DIR . '/inc/term-meta.php';
 require TECHNOPAY_DIR . '/inc/content-toc.php';
@@ -51,18 +52,19 @@ function technopay_setup() {
 
 	add_theme_support( 'editor-styles' );
 	add_editor_style( 'assets/css/editor.css' );
+	$technopay_brand = technopay_brand_tokens( technopay_brand_color() )['light'];
 	add_theme_support(
 		'editor-color-palette',
 		array(
 			array(
-				'name'  => __( 'آبی تکنوپی', 'technopay' ),
+				'name'  => __( 'رنگ برند', 'technopay' ),
 				'slug'  => 'primary',
-				'color' => '#2b59ff',
+				'color' => $technopay_brand['primary'],
 			),
 			array(
-				'name'  => __( 'بنفش', 'technopay' ),
-				'slug'  => 'violet',
-				'color' => '#7c3aed',
+				'name'  => __( 'رنگ برند — تیره', 'technopay' ),
+				'slug'  => 'primary-deep',
+				'color' => $technopay_brand['primary-deep'],
 			),
 			array(
 				'name'  => __( 'زرد تأکیدی', 'technopay' ),
@@ -80,9 +82,9 @@ function technopay_setup() {
 				'color' => '#64748b',
 			),
 			array(
-				'name'  => __( 'آبی روشن', 'technopay' ),
+				'name'  => __( 'رنگ برند — روشن', 'technopay' ),
 				'slug'  => 'primary-50',
-				'color' => '#eef2ff',
+				'color' => $technopay_brand['primary-50'],
 			),
 		)
 	);
@@ -115,7 +117,7 @@ add_action( 'after_setup_theme', 'technopay_content_width', 0 );
  */
 function technopay_assets() {
 	wp_enqueue_style( 'technopay-main', TECHNOPAY_URI . '/assets/css/main.css', array(), TECHNOPAY_VERSION );
-	wp_add_inline_style( 'technopay-main', ':root{--logo-h:' . technopay_logo_height() . 'px}' );
+	wp_add_inline_style( 'technopay-main', ':root{--logo-h:' . technopay_logo_height() . 'px}' . technopay_brand_css() );
 	wp_enqueue_script(
 		'technopay-main',
 		TECHNOPAY_URI . '/assets/js/main.js',
@@ -158,7 +160,7 @@ add_action( 'wp_head', 'technopay_preload_font', 1 );
  * رنگ نوار مرورگر موبایل.
  */
 function technopay_theme_color_meta() {
-	echo '<meta name="theme-color" content="#2b59ff">' . "\n";
+	echo '<meta name="theme-color" content="' . esc_attr( technopay_brand_color() ) . '">' . "\n";
 }
 add_action( 'wp_head', 'technopay_theme_color_meta', 2 );
 

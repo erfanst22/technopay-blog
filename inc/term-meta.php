@@ -109,8 +109,8 @@ function technopay_category_icon_select( $current ) {
  */
 function technopay_category_color_select( $current ) {
 	$colors = array(
-		1 => __( 'آبی / بنفش', 'technopay' ),
-		2 => __( 'فیروزه‌ای', 'technopay' ),
+		1 => __( 'رنگ برند', 'technopay' ),
+		2 => __( 'فیروزه‌ای / آبی', 'technopay' ),
 		3 => __( 'نارنجی / قرمز', 'technopay' ),
 		4 => __( 'طلایی', 'technopay' ),
 		5 => __( 'سرمه‌ای', 'technopay' ),

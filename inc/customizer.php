@@ -14,6 +14,9 @@ defined( 'ABSPATH' ) || exit;
  */
 function technopay_defaults() {
 	return array(
+		// رنگ.
+		'brand_color'          => '#00b7ce',
+
 		// هدر.
 		'topbar_enabled'       => true,
 		'header_cta_text'      => 'دریافت اعتبار',
@@ -199,6 +202,8 @@ function technopay_customize_register( $wp_customize ) {
 	);
 
 	$sections = array(
+		'technopay_colors'     => __( 'رنگ برند', 'technopay' ),
+		'technopay_home'       => __( 'صفحه اصلی — نمایش بخش‌ها', 'technopay' ),
 		'technopay_header'     => __( 'هدر', 'technopay' ),
 		'technopay_cta'        => __( 'بنر تبلیغاتی', 'technopay' ),
 		'technopay_steps'      => __( 'مراحل دریافت اعتبار', 'technopay' ),
@@ -347,6 +352,80 @@ function technopay_customize_register( $wp_customize ) {
 		}
 		$wp_customize->add_control( $key, $control );
 	}
+
+	require_once TECHNOPAY_DIR . '/inc/customizer-controls.php';
+
+	// رنگ برند: همهٔ دکمه‌ها و المان‌های رنگی از روی همین یک رنگ ساخته می‌شوند (inc/colors.php).
+	$wp_customize->add_setting(
+		'brand_color',
+		array(
+			'default'           => technopay_default_brand(),
+			'sanitize_callback' => 'technopay_sanitize_brand_color',
+		)
+	);
+	$wp_customize->add_control(
+		new WP_Customize_Color_Control(
+			$wp_customize,
+			'brand_color',
+			array(
+				'label'       => __( 'رنگ اصلی برند', 'technopay' ),
+				'description' => __( 'رنگ دکمه‌ها، نشان‌ها و المان‌های رنگی. رنگ متن روی دکمه‌ها، لینک‌ها و حالت تاریک خودکار و با کنتراست خوانا ساخته می‌شود. پیش‌فرض: #00b7ce', 'technopay' ),
+				'section'     => 'technopay_colors',
+			)
+		)
+	);
+
+	// بخش‌های صفحه اصلی: تا وقتی چیدمان صفحه اصلی در «نمایش ← چیدمان صفحات» ذخیره نشده، همین گزینه‌ها اعمال می‌شود
+	// (مثلاً هنگام پیش‌نمایش قالب، پیش از فعال‌سازی).
+	$home_registry = technopay_layout_registry();
+	$home_sections = array_merge( array( 'hero' ), technopay_layout_sections() );
+	$home_unsaved  = static function () {
+		return ! technopay_layout_page_saved( 'home' );
+	};
+	$home_saved    = static function () {
+		return technopay_layout_page_saved( 'home' );
+	};
+	$wp_customize->get_section( 'technopay_home' )->description = __( 'هر بخشی را که نمی‌خواهید خاموش کنید؛ پیش‌نمایش بلافاصله عوض می‌شود. ترتیب بخش‌ها و تنظیمات دقیق‌تر در «نمایش ← چیدمان صفحات» است.', 'technopay' );
+	foreach ( $home_sections as $home_id ) {
+		if ( ! isset( $home_registry['blocks'][ $home_id ] ) ) {
+			continue;
+		}
+		$home_key = 'home_' . $home_id;
+		$wp_customize->add_setting(
+			$home_key,
+			array(
+				'default'           => true,
+				'sanitize_callback' => 'technopay_sanitize_checkbox',
+			)
+		);
+		$wp_customize->add_control(
+			$home_key,
+			array(
+				'label'           => $home_registry['blocks'][ $home_id ]['label'],
+				'description'     => $home_registry['blocks'][ $home_id ]['desc'],
+				'section'         => 'technopay_home',
+				'type'            => 'checkbox',
+				'active_callback' => $home_unsaved,
+			)
+		);
+	}
+	$wp_customize->add_control(
+		new TechnoPay_Note_Control(
+			$wp_customize,
+			'home_sections_note',
+			array(
+				'label'           => __( 'چیدمان صفحه اصلی ذخیره شده است', 'technopay' ),
+				'description'     => sprintf(
+					/* translators: %s: link to the layout page */
+					__( 'ترتیب و نمایش بخش‌های صفحه اصلی از %s مدیریت می‌شود. با «بازگردانی به پیش‌فرض» در همان‌جا، این گزینه‌ها دوباره اعمال می‌شوند.', 'technopay' ),
+					'<a href="' . esc_url( admin_url( 'themes.php?page=technopay-layout' ) ) . '" target="_blank" rel="noopener">' . esc_html__( 'نمایش ← چیدمان صفحات', 'technopay' ) . '</a>'
+				),
+				'section'         => 'technopay_home',
+				'settings'        => array(),
+				'active_callback' => $home_saved,
+			)
+		)
+	);
 
 	// لوگو: خود لوگو را وردپرس در «هویت سایت» می‌گیرد؛ اینجا نسخهٔ حالت تاریک و اندازه را اضافه می‌کنیم.
 	$wp_customize->add_setting(
