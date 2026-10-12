@@ -1,6 +1,6 @@
 <?php
 /**
- * صفحه مدیریت «نمایش ← چیدمان صفحات»: چیدن بخش‌های هر صفحه با کشیدن و رها کردن.
+ * صفحه «چیدمان لیستی» در منوی «مجله تکنوپی»: چیدن بخش‌های هر صفحه با کشیدن و رها کردن.
  *
  * رابط با جاوااسکریپت (assets/js/layout-admin.js + SortableJS) ساخته می‌شود و با یک فرم معمولی
  * (admin-post.php، nonce و دسترسی edit_theme_options) ذخیره می‌شود؛ ورودی سمت سرور کاملاً پاک‌سازی می‌شود.
@@ -13,26 +13,13 @@ defined( 'ABSPATH' ) || exit;
 const TECHNOPAY_LAYOUT_PAGE = 'technopay-layout';
 
 /**
- * افزودن صفحه به منوی «نمایش».
- */
-function technopay_layout_admin_menu() {
-	add_theme_page(
-		__( 'چیدمان صفحات', 'technopay' ),
-		__( 'چیدمان صفحات', 'technopay' ),
-		'edit_theme_options',
-		TECHNOPAY_LAYOUT_PAGE,
-		'technopay_layout_admin_page'
-	);
-}
-add_action( 'admin_menu', 'technopay_layout_admin_menu' );
-
-/**
  * فایل‌های CSS/JS (فقط در همین صفحه).
  *
  * @param string $hook صفحه جاری.
  */
 function technopay_layout_admin_assets( $hook ) {
-	if ( 'appearance_page_' . TECHNOPAY_LAYOUT_PAGE !== $hook ) {
+	// نام هوک زیرمنو به عنوان منوی بالاسطحی (فارسی) وابسته است؛ پس با پارامتر page تشخیص می‌دهیم.
+	if ( ! isset( $_GET['page'] ) || TECHNOPAY_LAYOUT_PAGE !== $_GET['page'] || false === strpos( (string) $hook, TECHNOPAY_LAYOUT_PAGE ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return;
 	}
 	wp_enqueue_style( 'technopay-layout-admin', TECHNOPAY_URI . '/assets/css/layout-admin.css', array(), TECHNOPAY_VERSION );
@@ -42,26 +29,16 @@ function technopay_layout_admin_assets( $hook ) {
 add_action( 'admin_enqueue_scripts', 'technopay_layout_admin_assets' );
 
 /**
- * آدرس آدرس پیش‌نمایش هر صفحه.
+ * آدرس ویرایشگر بصری هر صفحه.
  *
  * @return array<string,string>
  */
 function technopay_layout_preview_urls() {
-	$post = get_posts(
-		array(
-			'numberposts'         => 1,
-			'ignore_sticky_posts' => true,
-			'no_found_rows'       => true,
-		)
-	);
-	$cats = technopay_get_top_categories( 1 );
-	return array(
-		'home'    => home_url( '/' ),
-		'single'  => $post ? get_permalink( $post[0] ) : home_url( '/' ),
-		'archive' => $cats ? get_category_link( $cats[0] ) : home_url( '/' ),
-		'search'  => get_search_link( 'تکنوپی' ),
-		'404'     => home_url( '/technopay-404-preview/' ),
-	);
+	$urls = array();
+	foreach ( technopay_editor_targets() as $id => $target ) {
+		$urls[ $id ] = '' === $target['url'] ? home_url( '/' ) : technopay_editor_link( $target['url'] );
+	}
+	return $urls;
 }
 
 /**
@@ -153,7 +130,7 @@ function technopay_layout_admin_config() {
 			'remove'      => __( 'حذف از صفحه', 'technopay' ),
 			'drag'        => __( 'برای جابه‌جایی بکشید', 'technopay' ),
 			'auto'        => __( '— خودکار —', 'technopay' ),
-			'preview'     => __( 'پیش‌نمایش در تب جدید', 'technopay' ),
+			'preview'     => __( 'ویرایش بصری این صفحه', 'technopay' ),
 			'reset'       => __( 'بازگردانی این صفحه به پیش‌فرض', 'technopay' ),
 			'resetAsk'    => __( 'چیدمان این صفحه به حالت پیش‌فرض برگردد؟ تغییرات ذخیره‌نشده از بین می‌رود.', 'technopay' ),
 			'pageOptions' => __( 'تنظیمات صفحه', 'technopay' ),
@@ -202,8 +179,8 @@ function technopay_layout_admin_page() {
 	);
 	?>
 	<div class="wrap tpl-wrap" dir="rtl">
-		<h1><?php esc_html_e( 'چیدمان صفحات', 'technopay' ); ?></h1>
-		<p class="description tpl-lead"><?php esc_html_e( 'بخش‌های هر صفحه را با کشیدن و رها کردن مرتب کنید: از ستون «غیرفعال» به ستون «فعال» بکشید تا نمایش داده شود و برعکس تا پنهان شود. با دکمهٔ «تنظیمات» هر بخش، عنوان و تعداد و چند گزینهٔ دیگر را عوض کنید. تغییرات پس از «ذخیره» روی سایت اعمال می‌شود.', 'technopay' ); ?></p>
+		<h1><?php esc_html_e( 'چیدمان لیستی', 'technopay' ); ?></h1>
+		<p class="description tpl-lead"><?php esc_html_e( 'این همان چیدمان به‌صورت لیست است (برای ویرایش مستقیم روی صفحه از «ویرایشگر بصری» استفاده کنید). بخش‌های هر صفحه را با کشیدن و رها کردن مرتب کنید: از ستون «غیرفعال» به ستون «فعال» بکشید تا نمایش داده شود و برعکس تا پنهان شود. با دکمهٔ «تنظیمات» هر بخش، عنوان و تعداد و چند گزینهٔ دیگر را عوض کنید. تغییرات پس از «ذخیره» روی سایت اعمال می‌شود.', 'technopay' ); ?></p>
 
 		<?php echo technopay_layout_admin_notice(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside. ?>
 
@@ -262,7 +239,7 @@ function technopay_layout_admin_url( $msg, $tab = 'home' ) {
 			'tab'     => sanitize_key( $tab ),
 			'tpl-msg' => $msg,
 		),
-		admin_url( 'themes.php' )
+		admin_url( 'admin.php' )
 	);
 }
 
@@ -305,6 +282,7 @@ function technopay_layout_handle_save() {
 		exit;
 	}
 	technopay_layout_save( technopay_layout_sanitize( $data ) );
+	technopay_draft_clear_all_users();
 	wp_safe_redirect( technopay_layout_admin_url( 'saved', $tab ) );
 	exit;
 }
@@ -319,6 +297,7 @@ function technopay_layout_handle_reset() {
 	$registry = technopay_layout_registry();
 	if ( isset( $registry['pages'][ $page ] ) ) {
 		technopay_layout_reset_page( $page );
+		technopay_draft_clear_all_users();
 	}
 	wp_safe_redirect( technopay_layout_admin_url( 'reset', $page ) );
 	exit;
@@ -342,6 +321,7 @@ function technopay_layout_handle_import() {
 	}
 	delete_option( TECHNOPAY_LAYOUT_OPTION );
 	technopay_layout_save( $clean );
+	technopay_draft_clear_all_users();
 	wp_safe_redirect( technopay_layout_admin_url( 'imported' ) );
 	exit;
 }

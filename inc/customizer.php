@@ -17,6 +17,9 @@ function technopay_defaults() {
 		// رنگ.
 		'brand_color'          => '#00b7ce',
 		'button_text'          => 'white',
+		'fs_scale'             => 100,
+		'fs_article'           => 100,
+		'container_w'          => 1240,
 
 		// هدر.
 		'topbar_enabled'       => true,
@@ -204,6 +207,7 @@ function technopay_customize_register( $wp_customize ) {
 
 	$sections = array(
 		'technopay_colors'     => __( 'رنگ برند', 'technopay' ),
+		'technopay_style'      => __( 'فونت و عرض سایت', 'technopay' ),
 		'technopay_home'       => __( 'صفحه اصلی — نمایش بخش‌ها', 'technopay' ),
 		'technopay_header'     => __( 'هدر', 'technopay' ),
 		'technopay_cta'        => __( 'بنر تبلیغاتی', 'technopay' ),
@@ -376,6 +380,32 @@ function technopay_customize_register( $wp_customize ) {
 		)
 	);
 
+	// اندازهٔ فونت و عرض محتوا (همان گزینه‌های تب «سبک سایت» در ویرایشگر بصری).
+	foreach ( technopay_style_schema() as $style_key => $style_def ) {
+		$wp_customize->add_setting(
+			$style_key,
+			array(
+				'default'           => $style_def['default'],
+				'sanitize_callback' => static function ( $value ) use ( $style_key ) {
+					return technopay_style_sanitize( $style_key, $value );
+				},
+			)
+		);
+		$wp_customize->add_control(
+			$style_key,
+			array(
+				'label'       => $style_def['label'] . ' (' . $style_def['unit'] . ')',
+				'section'     => 'technopay_style',
+				'type'        => 'range',
+				'input_attrs' => array(
+					'min'  => $style_def['min'],
+					'max'  => $style_def['max'],
+					'step' => $style_def['step'],
+				),
+			)
+		);
+	}
+
 	$wp_customize->add_setting(
 		'button_text',
 		array(
@@ -399,7 +429,7 @@ function technopay_customize_register( $wp_customize ) {
 		)
 	);
 
-	// بخش‌های صفحه اصلی: تا وقتی چیدمان صفحه اصلی در «نمایش ← چیدمان صفحات» ذخیره نشده، همین گزینه‌ها اعمال می‌شود
+	// بخش‌های صفحه اصلی: تا وقتی چیدمان صفحه اصلی در «مجله تکنوپی» ذخیره نشده، همین گزینه‌ها اعمال می‌شود
 	// (مثلاً هنگام پیش‌نمایش قالب، پیش از فعال‌سازی).
 	$home_registry = technopay_layout_registry();
 	$home_sections = array_merge( array( 'hero' ), technopay_layout_sections() );
@@ -409,7 +439,7 @@ function technopay_customize_register( $wp_customize ) {
 	$home_saved    = static function () {
 		return technopay_layout_page_saved( 'home' );
 	};
-	$wp_customize->get_section( 'technopay_home' )->description = __( 'هر بخشی را که نمی‌خواهید خاموش کنید؛ پیش‌نمایش بلافاصله عوض می‌شود. ترتیب بخش‌ها و تنظیمات دقیق‌تر در «نمایش ← چیدمان صفحات» است.', 'technopay' );
+	$wp_customize->get_section( 'technopay_home' )->description = __( 'هر بخشی را که نمی‌خواهید خاموش کنید؛ پیش‌نمایش بلافاصله عوض می‌شود. ترتیب بخش‌ها و تنظیمات دقیق‌تر در «مجله تکنوپی» است.', 'technopay' );
 	foreach ( $home_sections as $home_id ) {
 		if ( ! isset( $home_registry['blocks'][ $home_id ] ) ) {
 			continue;
@@ -442,7 +472,7 @@ function technopay_customize_register( $wp_customize ) {
 				'description'     => sprintf(
 					/* translators: %s: link to the layout page */
 					__( 'ترتیب و نمایش بخش‌های صفحه اصلی از %s مدیریت می‌شود. با «بازگردانی به پیش‌فرض» در همان‌جا، این گزینه‌ها دوباره اعمال می‌شوند.', 'technopay' ),
-					'<a href="' . esc_url( admin_url( 'themes.php?page=technopay-layout' ) ) . '" target="_blank" rel="noopener">' . esc_html__( 'نمایش ← چیدمان صفحات', 'technopay' ) . '</a>'
+					'<a href="' . esc_url( admin_url( 'admin.php?page=technopay' ) ) . '" target="_blank" rel="noopener">' . esc_html__( 'مجله تکنوپی ← ویرایشگر بصری', 'technopay' ) . '</a>'
 				),
 				'section'         => 'technopay_home',
 				'settings'        => array(),

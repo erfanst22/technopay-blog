@@ -3,7 +3,7 @@
  * موتور چیدمان صفحات: رجیستری صفحه‌ها/ناحیه‌ها/بلوک‌ها، مقادیر پیش‌فرض، پاک‌سازی و رندر.
  *
  * هر صفحه (صفحه اصلی، نوشته، آرشیو، جستجو، ۴۰۴) از چند «ناحیه» ساخته شده و هر ناحیه فهرستی مرتب از
- * «بلوک»هاست. مدیر سایت از «نمایش ← چیدمان صفحات» با کشیدن و رها کردن بلوک‌ها را مرتب، فعال/غیرفعال و
+ * «بلوک»هاست. مدیر سایت از «مجله تکنوپی» با کشیدن و رها کردن بلوک‌ها را مرتب، فعال/غیرفعال و
  * تنظیم می‌کند. چیدمان در گزینه technopay_layout ذخیره می‌شود؛ فقط بلوک‌های فعال و به ترتیب نمایش.
  *
  * توسعه‌دهنده‌ها می‌توانند با فیلتر technopay_layout_registry صفحه/ناحیه/بلوک جدید اضافه کنند.
@@ -275,8 +275,26 @@ function technopay_layout_registry() {
 		'w_widgets_single'  => $block( 'ابزارک‌های وردپرس (نوشته)', 'هر آنچه در «نمایش ← ابزارک‌ها ← سایدبار نوشته» گذاشته‌اید.', 'technopay_block_w_widgets_single' ),
 	);
 
+	// نوع هر بلوک: wide = بخش تمام‌عرض (خودش container دارد)، column = جزء مقاله، widget = ابزارک سایدبار.
+	// بلوک column/widget داخل ناحیهٔ تمام‌عرض خودکار در یک container باریک قرار می‌گیرد.
+	$wide_ids   = array_merge( array( 'hero', 'archive_hero', 'search_hero', 'results', 's_related_grid', 'e_message', 'e_suggested' ), technopay_layout_sections() );
+	$column_ids = array( 's_header', 's_cover', 's_content', 's_footer', 's_author', 's_nav', 's_comments' );
+	// عنصرهایی که فقط یک‌بار در هر صفحه معنی دارند (شناسه‌های یکتا، فرم دیدگاه، لیست نتایج و ...).
+	$unique_ids = array( 's_header', 's_cover', 's_content', 's_footer', 's_author', 's_nav', 's_comments', 'results', 'archive_hero', 'search_hero', 'e_message', 'e_suggested' );
+	foreach ( $blocks as $block_id => $block_def ) {
+		$blocks[ $block_id ]['unique'] = in_array( $block_id, $unique_ids, true );
+		if ( in_array( $block_id, $wide_ids, true ) ) {
+			$blocks[ $block_id ]['kind'] = 'wide';
+		} elseif ( in_array( $block_id, $column_ids, true ) ) {
+			$blocks[ $block_id ]['kind'] = 'column';
+		} else {
+			$blocks[ $block_id ]['kind'] = 'widget';
+		}
+	}
+
 	$sections     = technopay_layout_sections();
 	$widgets      = technopay_layout_widgets();
+	$all_widgets  = array_merge( $widgets, array( 'w_widgets_single', 'w_widgets_main' ) );
 	$sidebar_opts = array(
 		'sidebar_position' => array(
 			'type'    => 'select',
@@ -293,6 +311,7 @@ function technopay_layout_registry() {
 	// ناحیهٔ چسبان: زیر ابزارک‌های سایدبار می‌آید و با اسکرول صفحه زیر هدر می‌ماند (فقط دسکتاپ).
 	$sidebar_sticky = array(
 		'label'  => 'سایدبار — چسبان',
+		'kind'   => 'sidebar',
 		'desc'   => 'این ابزارک‌ها زیر ابزارک‌های بالا قرار می‌گیرند و هنگام اسکرول کنار صفحه می‌مانند (فقط دسکتاپ). برای چسباندن کل سایدبار، همه را اینجا بگذارید.',
 		'blocks' => array_merge( $widgets, array( 'w_widgets_single', 'w_widgets_main' ) ),
 	);
@@ -303,8 +322,9 @@ function technopay_layout_registry() {
 			'regions' => array(
 				'main' => array(
 					'label'  => 'بخش‌های صفحه اصلی',
+					'kind'   => 'wide',
 					'desc'   => 'بخش‌ها از بالا به پایین به همین ترتیب نمایش داده می‌شوند.',
-					'blocks' => array_merge( array( 'hero' ), $sections ),
+					'blocks' => array_merge( array( 'hero' ), $sections, $all_widgets ),
 				),
 			),
 			'options' => array(),
@@ -314,25 +334,29 @@ function technopay_layout_registry() {
 			'regions' => array(
 				'card'    => array(
 					'label'    => 'داخل کارت مقاله',
+					'kind'     => 'card',
 					'desc'     => 'عنوان و متن لازم‌اند؛ بقیه را می‌توانید جابه‌جا یا غیرفعال کنید.',
 					'blocks'   => array( 's_header', 's_cover', 's_content', 's_footer' ),
 					'required' => array( 's_header', 's_content' ),
 				),
 				'after'   => array(
 					'label'  => 'زیر کارت مقاله',
+					'kind'   => 'column',
 					'desc'   => 'در همان ستون مقاله و زیر آن.',
-					'blocks' => array( 's_author', 's_nav', 's_comments' ),
+					'blocks' => array_merge( array( 's_author', 's_nav', 's_comments', 's_related_grid' ), $all_widgets ),
 				),
 				'sidebar' => array(
 					'label'  => 'سایدبار',
+					'kind'   => 'sidebar',
 					'desc'   => 'ابزارک‌های کنار مقاله؛ محاسبه‌گر اقساط، دسته‌ها، بنر و ... را از ستون «غیرفعال» به ستون «فعال» بکشید.',
 					'blocks' => array_merge( $widgets, array( 'w_widgets_single', 'w_widgets_main' ) ),
 				),
 				'sidebar_sticky' => $sidebar_sticky,
 				'bottom'  => array(
 					'label'  => 'پایین صفحه (تمام‌عرض)',
+					'kind'   => 'wide',
 					'desc'   => 'بعد از مقاله و سایدبار.',
-					'blocks' => array_merge( array( 's_related_grid' ), $sections ),
+					'blocks' => array_merge( array( 's_related_grid', 's_author', 's_nav', 's_comments' ), $sections, $all_widgets ),
 				),
 			),
 			'options' => $sidebar_opts,
@@ -342,12 +366,14 @@ function technopay_layout_registry() {
 			'regions' => array(
 				'main'    => array(
 					'label'    => 'بخش‌های صفحه',
+					'kind'     => 'wide',
 					'desc'     => 'سربرگ، لیست نوشته‌ها و هر بخش دلخواه دیگر.',
-					'blocks'   => array_merge( array( 'archive_hero', 'results' ), $sections ),
+					'blocks'   => array_merge( array( 'archive_hero', 'results' ), $sections, $all_widgets ),
 					'required' => array( 'results' ),
 				),
 				'sidebar' => array(
 					'label'  => 'سایدبار',
+					'kind'   => 'sidebar',
 					'desc'   => 'ابزارک‌های کنار لیست نوشته‌ها؛ محاسبه‌گر اقساط، دسته‌ها، بنر و ... را از ستون «غیرفعال» به ستون «فعال» بکشید.',
 					'blocks' => array_merge( $widgets, array( 'w_widgets_main', 'w_widgets_single' ) ),
 				),
@@ -360,12 +386,14 @@ function technopay_layout_registry() {
 			'regions' => array(
 				'main'    => array(
 					'label'    => 'بخش‌های صفحه',
+					'kind'     => 'wide',
 					'desc'     => 'سربرگ جستجو، نتایج و هر بخش دلخواه دیگر.',
-					'blocks'   => array_merge( array( 'search_hero', 'results' ), $sections ),
+					'blocks'   => array_merge( array( 'search_hero', 'results' ), $sections, $all_widgets ),
 					'required' => array( 'results' ),
 				),
 				'sidebar' => array(
 					'label'  => 'سایدبار',
+					'kind'   => 'sidebar',
 					'desc'   => 'ابزارک‌های کنار نتایج؛ محاسبه‌گر اقساط، دسته‌ها، بنر و ... را از ستون «غیرفعال» به ستون «فعال» بکشید.',
 					'blocks' => array_merge( $widgets, array( 'w_widgets_main', 'w_widgets_single' ) ),
 				),
@@ -378,8 +406,9 @@ function technopay_layout_registry() {
 			'regions' => array(
 				'main' => array(
 					'label'  => 'بخش‌های صفحه',
+					'kind'   => 'wide',
 					'desc'   => 'پیام خطا، مطالب پیشنهادی و هر بخش دلخواه دیگر.',
-					'blocks' => array_merge( array( 'e_message', 'e_suggested' ), $sections ),
+					'blocks' => array_merge( array( 'e_message', 'e_suggested' ), $sections, $all_widgets ),
 				),
 			),
 			'options' => array(),
@@ -467,6 +496,7 @@ function technopay_layout_normalize_page( $page_id, $data, $default ) {
 		$out['options'][ $key ] = technopay_layout_sanitize_value( $field, $raw );
 	}
 
+	$unique_seen = array();
 	foreach ( $page['regions'] as $region_id => $region ) {
 		$items = isset( $data['regions'][ $region_id ] ) && is_array( $data['regions'][ $region_id ] ) ? $data['regions'][ $region_id ] : array();
 		$list  = array();
@@ -475,6 +505,12 @@ function technopay_layout_normalize_page( $page_id, $data, $default ) {
 			$id = is_array( $item ) && isset( $item['id'] ) ? (string) $item['id'] : '';
 			if ( '' === $id || isset( $seen[ $id ] ) || ! in_array( $id, $region['blocks'], true ) || ! isset( $registry['blocks'][ $id ] ) ) {
 				continue;
+			}
+			if ( ! empty( $registry['blocks'][ $id ]['unique'] ) ) {
+				if ( isset( $unique_seen[ $id ] ) ) {
+					continue; // یک‌بار در هر صفحه.
+				}
+				$unique_seen[ $id ] = true;
 			}
 			$seen[ $id ] = true;
 			$settings    = array();
@@ -666,6 +702,9 @@ function technopay_layout_get( $refresh = false ) {
 	}
 	$saved    = get_option( TECHNOPAY_LAYOUT_OPTION, array() );
 	$saved    = is_array( $saved ) && isset( $saved['pages'] ) && is_array( $saved['pages'] ) ? $saved['pages'] : array();
+	if ( function_exists( 'technopay_editor_state' ) && technopay_editor_state() ) {
+		$saved = array_merge( $saved, technopay_draft_pages() ); // پیش‌نویس ویرایشگر بصری (فقط برای خود مدیر).
+	}
 	$defaults = technopay_layout_defaults();
 	$registry = technopay_layout_registry();
 	$cache    = array();
@@ -725,7 +764,7 @@ function technopay_layout_save( array $sanitized ) {
 }
 
 /**
- * آیا چیدمان این صفحه در «چیدمان صفحات» ذخیره شده است؟ (وگرنه پیش‌فرض‌ها و گزینه‌های سفارشی‌سازی اعمال می‌شوند.)
+ * آیا چیدمان این صفحه در «چیدمان لیستی» ذخیره شده است؟ (وگرنه پیش‌فرض‌ها و گزینه‌های سفارشی‌سازی اعمال می‌شوند.)
  *
  * @param string $page_id شناسه صفحه.
  * @return bool
@@ -808,29 +847,89 @@ function technopay_block_setting( $key, $default = null ) {
 }
 
 /**
- * رندر همه بلوک‌های فعال یک ناحیه.
+ * بلوک‌های جزء مقاله یا ابزارک وقتی در ناحیهٔ تمام‌عرض می‌آیند، داخل یک container باریک قرار می‌گیرند.
+ *
+ * @param string $html        خروجی بلوک.
+ * @param string $block_kind  نوع بلوک (wide|column|widget).
+ * @param string $region_kind نوع ناحیه (wide|column|sidebar|card).
+ * @return string
+ */
+function technopay_wrap_block_html( $html, $block_kind, $region_kind ) {
+	if ( '' === trim( $html ) || 'wide' !== $region_kind || 'wide' === $block_kind ) {
+		return $html;
+	}
+	return '<section class="section section--block"><div class="container container--narrow">' . $html . '</div></section>';
+}
+
+/**
+ * رندر همه بلوک‌های فعال یک ناحیه. در حالت ویرایش بصری، هر ناحیه و بلوک با پوششی برای کشیدن و رها کردن چاپ می‌شود.
  *
  * @param string $page_id   شناسه صفحه.
  * @param string $region_id شناسه ناحیه.
  * @param array  $context   اطلاعات اضافه برای بلوک‌ها.
  */
 function technopay_render_region( $page_id, $region_id, $context = array() ) {
-	$registry = technopay_layout_registry();
-	$context  = array_merge(
+	$registry    = technopay_layout_registry();
+	$region_def  = isset( $registry['pages'][ $page_id ]['regions'][ $region_id ] ) ? $registry['pages'][ $page_id ]['regions'][ $region_id ] : array();
+	$region_kind = isset( $region_def['kind'] ) ? $region_def['kind'] : 'wide';
+	$editing     = function_exists( 'technopay_is_editing' ) && technopay_is_editing();
+	$required    = isset( $region_def['required'] ) ? $region_def['required'] : array();
+	$context     = array_merge(
 		array(
 			'page'   => $page_id,
 			'region' => $region_id,
 		),
 		(array) $context
 	);
+
+	if ( $editing ) {
+		technopay_editor_registry( $page_id . '.' . $region_id );
+		printf(
+			'<div class="tpb-region" data-tpb-page="%1$s" data-tpb-region="%2$s">',
+			esc_attr( $page_id ),
+			esc_attr( $region_id )
+		);
+	}
+
+	$index = 0;
 	foreach ( technopay_region_blocks( $page_id, $region_id ) as $item ) {
 		if ( ! isset( $registry['blocks'][ $item['id'] ] ) || ! is_callable( $registry['blocks'][ $item['id'] ]['callback'] ) ) {
 			continue;
 		}
+		$def      = $registry['blocks'][ $item['id'] ];
 		$settings = array_merge( technopay_block_defaults( $item['id'] ), $item['settings'] );
 		technopay_block_stack( $settings );
-		call_user_func( $registry['blocks'][ $item['id'] ]['callback'], $settings, $context );
+		ob_start();
+		call_user_func( $def['callback'], $settings, $context );
+		$html = (string) ob_get_clean();
 		technopay_block_stack( null, true );
+
+		$html = technopay_wrap_block_html( $html, isset( $def['kind'] ) ? $def['kind'] : 'wide', $region_kind );
+
+		if ( ! $editing ) {
+			echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped where it is generated.
+			continue;
+		}
+
+		$uid = technopay_editor_register_block( $page_id, $region_id, $index++, $item['id'], $settings );
+		printf(
+			'<div class="tpb-block%1$s" data-tpb-id="%2$s" data-tpb-uid="%3$s" data-tpb-required="%4$d">',
+			'' === trim( $html ) ? ' tpb-block--empty' : '',
+			esc_attr( $item['id'] ),
+			esc_attr( $uid ),
+			in_array( $item['id'], $required, true ) ? 1 : 0
+		);
+		if ( '' === trim( $html ) ) {
+			echo '<div class="tpb-empty-note">' . esc_html( $def['label'] ) . ' — ' . esc_html__( 'فعلاً چیزی برای نمایش ندارد (مثلاً مطلبی پیدا نشد یا تنظیمش کامل نیست).', 'technopay' ) . '</div>';
+		} else {
+			echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped where it is generated.
+		}
+		echo '</div>';
+	}
+
+	if ( $editing ) {
+		echo '<button type="button" class="tpb-region__add" data-tpb-add>+ ' . esc_html__( 'افزودن عنصر به این ناحیه', 'technopay' ) . '</button>';
+		echo '</div>';
 	}
 }
 

@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TECHNOPAY_VERSION', '1.4.1' );
+define( 'TECHNOPAY_VERSION', '1.5.0' );
 define( 'TECHNOPAY_DIR', get_template_directory() );
 define( 'TECHNOPAY_URI', get_template_directory_uri() );
 
@@ -22,7 +22,9 @@ require TECHNOPAY_DIR . '/inc/content-toc.php';
 require TECHNOPAY_DIR . '/inc/seo.php';
 require TECHNOPAY_DIR . '/inc/layout.php';
 require TECHNOPAY_DIR . '/inc/layout-blocks.php';
+require TECHNOPAY_DIR . '/inc/editor.php';
 require TECHNOPAY_DIR . '/inc/layout-admin.php';
+require TECHNOPAY_DIR . '/inc/hub.php';
 
 /**
  * پشتیبانی‌های قالب، منوها و اندازه تصاویر.
@@ -117,7 +119,7 @@ add_action( 'after_setup_theme', 'technopay_content_width', 0 );
  */
 function technopay_assets() {
 	wp_enqueue_style( 'technopay-main', TECHNOPAY_URI . '/assets/css/main.css', array(), TECHNOPAY_VERSION );
-	wp_add_inline_style( 'technopay-main', ':root{--logo-h:' . technopay_logo_height() . 'px}' . technopay_brand_css() );
+	wp_add_inline_style( 'technopay-main', ':root{--logo-h:' . technopay_logo_height() . 'px}' . technopay_brand_css() . technopay_style_css() );
 	wp_enqueue_script(
 		'technopay-main',
 		TECHNOPAY_URI . '/assets/js/main.js',

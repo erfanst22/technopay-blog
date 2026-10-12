@@ -291,12 +291,15 @@ function technopay_brand_vars( array $tokens ) {
 /**
  * CSS رنگ برند؛ اگر رنگ و حالت متن همان پیش‌فرض باشند خالی است (مقدارهای main.css از همان ساخته شده‌اند).
  *
+ * @param string|null $brand رنگ (null = تنظیم فعلی).
+ * @param string|null $mode  white یا auto (null = تنظیم فعلی).
+ * @param bool        $force تولید CSS حتی برای مقدارهای پیش‌فرض (پیش‌نمایش زندهٔ ویرایشگر).
  * @return string
  */
-function technopay_brand_css() {
-	$brand = technopay_brand_color();
-	$mode  = technopay_button_text_mode();
-	if ( technopay_default_brand() === $brand && 'white' === $mode ) {
+function technopay_brand_css( $brand = null, $mode = null, $force = false ) {
+	$brand = null === $brand ? technopay_brand_color() : technopay_sanitize_brand_color( $brand );
+	$mode  = null === $mode ? technopay_button_text_mode() : ( 'auto' === $mode ? 'auto' : 'white' );
+	if ( ! $force && technopay_default_brand() === $brand && 'white' === $mode ) {
 		return '';
 	}
 	$t = technopay_brand_tokens( $brand, $mode );
